@@ -4,12 +4,14 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>月次巡回監査 面談準備ツール</title>
+  <link rel="icon" type="image/png" href="for%20staff.png">
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
   <header class="app-header">
     <div class="app-header__inner">
-      <div>
+      <div class="app-brand">
+        <img class="app-logo" src="for%20staff.png" alt="" aria-hidden="true">
         <h1>月次巡回監査 面談準備ツール</h1>
       </div>
       <div class="header-actions">
@@ -205,8 +207,11 @@
 
         <div class="topic-pane is-active" data-topic-pane="past">
           <div class="category-head">
-            <h3>過去：経緯と前回宿題</h3>
-            <p>前回からの変化、未完了事項、過去の判断の結果を確認します。</p>
+            <div>
+              <h3>過去：経緯と前回宿題</h3>
+              <p>前回からの変化、未完了事項、過去の判断の結果を確認します。</p>
+            </div>
+            <button class="button button--compact add-topic-button" data-add-topic="past" type="button">項目を追加</button>
           </div>
           <div class="candidate-list" id="pastCandidates"></div>
           <label class="full-field">
@@ -217,8 +222,11 @@
 
         <div class="topic-pane" data-topic-pane="present">
           <div class="category-head">
-            <h3>現在：月次数値と監査確認</h3>
-            <p>月次試算表、資金、税務手続、所長指示の該当項目を確認します。</p>
+            <div>
+              <h3>現在：月次数値と監査確認</h3>
+              <p>月次試算表、資金、税務手続、所長指示の該当項目を確認します。</p>
+            </div>
+            <button class="button button--compact add-topic-button" data-add-topic="present" type="button">項目を追加</button>
           </div>
           <div class="candidate-list" id="presentCandidates"></div>
           <label class="full-field">
@@ -229,8 +237,11 @@
 
         <div class="topic-pane" data-topic-pane="future">
           <div class="category-head">
-            <h3>未来：決算・納税・次の打ち手</h3>
-            <p>決算着地、納税、投資・採用・承継など、次に判断することへつなげます。</p>
+            <div>
+              <h3>未来：決算・納税・次の打ち手</h3>
+              <p>決算着地、納税、投資・採用・承継など、次に判断することへつなげます。</p>
+            </div>
+            <button class="button button--compact add-topic-button" data-add-topic="future" type="button">項目を追加</button>
           </div>
           <div class="candidate-list" id="futureCandidates"></div>
           <label class="full-field">

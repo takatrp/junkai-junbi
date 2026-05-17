@@ -254,6 +254,7 @@ const formIds = [
   "decisions", "homework", "reflection"
 ];
 let restoredCandidates = {};
+let customCandidates = emptyCustomCandidates();
 let monthlyAnalysis = emptyMonthlyAnalysis();
 
 const ALERT_THRESHOLDS = {
@@ -280,6 +281,24 @@ function emptyMonthlyAnalysis() {
     profit: null,
     suggestions: []
   };
+}
+
+function emptyCustomCandidates() {
+  return { past: [], present: [], future: [] };
+}
+
+function normalizeCustomCandidates(value) {
+  const normalized = emptyCustomCandidates();
+  Object.keys(normalized).forEach((category) => {
+    normalized[category] = Array.isArray(value?.[category])
+      ? value[category].filter((item) => item && item.title).map((item) => ({
+        id: item.id || uniqueCustomCandidateId(category),
+        title: String(item.title || "").trim(),
+        detail: String(item.detail || "").trim()
+      }))
+      : [];
+  });
+  return normalized;
 }
 
 function normalizeMonthlyAnalysis(value) {
@@ -322,7 +341,8 @@ function candidate(title, detail, source, options = {}) {
     detail,
     source,
     group: options.group || "その他",
-    importance: options.importance || null  // "must" | "recommend" | null
+    importance: options.importance || null,  // "must" | "recommend" | null
+    id: options.id || null
   };
 }
 
@@ -440,6 +460,10 @@ function bindEvents() {
     tab.addEventListener("click", () => switchTab(tab.dataset.tab));
   });
 
+  $$(".add-topic-button").forEach((button) => {
+    button.addEventListener("click", () => addCustomCandidate(button.dataset.addTopic));
+  });
+
   $("#generateSummary").addEventListener("click", renderSummaries);
   $("#copyClientSummary").addEventListener("click", () => copyText("#clientSummaryText", "#copyClientSummary", "要約版コピー"));
   $("#copyDetailedSummary").addEventListener("click", () => copyText("#detailedSummaryText", "#copyDetailedSummary", "詳細版コピー"));
@@ -454,7 +478,7 @@ function bindEvents() {
   $("#loadSample").addEventListener("click", loadSample);
   $("#clearDraft").addEventListener("click", clearDraft);
   $("#exportJson").addEventListener("click", exportJson);
-  $("#importJson").addEventListener("click", () => $("#jsonImportInput").click());
+  $("#importJson").addEventListener("click", requestJsonImport);
   $("#jsonImportInput").addEventListener("change", handleJsonImport);
   $("#saveRecord").addEventListener("click", saveRecord);
 }
@@ -584,8 +608,12 @@ function renderCandidates() {
         group: item.group || (item.importance === "must" ? "重要アラート" : "月次データの注目点"),
         importance: item.importance || null
       }));
+    const manualCandidates = customCandidates[category].map((item) => candidate(item.title, item.detail, "手入力", {
+      group: "追加項目",
+      id: item.id
+    }));
 
-    const candidates = [...dataCandidates, ...baseCandidates[category]];
+    const candidates = [...dataCandidates, ...manualCandidates, ...baseCandidates[category]];
     const container = $(`#${category}Candidates`);
     container.innerHTML = "";
 
@@ -608,7 +636,7 @@ function renderCandidates() {
       heading.textContent = group.name;
       container.appendChild(heading);
       group.items.forEach((item) => {
-        const id = `${category}-${item.source}-${item.title}`.replace(/\s+/g, "-");
+        const id = item.id || `${category}-${item.source}-${item.title}`.replace(/\s+/g, "-");
         container.appendChild(createCandidateCard(category, item, id, previous[id], index));
         index += 1;
       });
@@ -645,7 +673,7 @@ function createCandidateCard(category, item, id, previous, index) {
   // 初期チェック：必須項目・CSV由来項目はON。推奨項目はOFF。
   checkbox.checked = hasPrevious
     ? Boolean(previous.checked)
-    : Boolean(item.importance === "must" || item.source === "月次データ");
+    : Boolean(item.importance === "must" || item.source === "月次データ" || item.source === "手入力");
   node.classList.toggle("is-selected", checkbox.checked || Boolean(textarea.value.trim()));
 
   checkbox.addEventListener("change", () => {
@@ -666,6 +694,26 @@ function createCandidateCard(category, item, id, previous, index) {
   });
 
   return node;
+}
+
+function addCustomCandidate(category) {
+  if (!categoryLabels[category]) return;
+  const title = window.prompt(`${categoryLabels[category]}に追加する項目名を入力してください。`);
+  if (!title || !title.trim()) return;
+  const detail = window.prompt("確認観点や聞き方を入力してください。（空欄でも追加できます）") || "";
+  customCandidates[category].push({
+    id: uniqueCustomCandidateId(category),
+    title: title.trim(),
+    detail: detail.trim()
+  });
+  renderCandidates();
+  renderSummaries();
+  renderStatus();
+  saveDraft();
+}
+
+function uniqueCustomCandidateId(category) {
+  return `custom-${category}-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
 }
 
 function selectedCandidateMap() {
@@ -914,6 +962,7 @@ function saveDraft() {
   const draft = {
     form: readState(),
     candidates: selectedCandidateMap(),
+    customCandidates,
     monthlyAnalysis
   };
   localStorage.setItem(draftKey, JSON.stringify(draft));
@@ -925,6 +974,7 @@ function restoreDraft() {
   try {
     const draft = JSON.parse(raw);
     restoredCandidates = draft.candidates || {};
+    customCandidates = normalizeCustomCandidates(draft.customCandidates);
     if (draft.monthlyAnalysis) monthlyAnalysis = normalizeMonthlyAnalysis(draft.monthlyAnalysis);
     Object.entries(draft.form || {}).forEach(([id, value]) => {
       if (id === "entityType") {
@@ -945,6 +995,7 @@ function exportJson() {
     savedAt: new Date().toISOString(),
     form: readState(),
     candidates: selectedCandidateMap(),
+    customCandidates,
     monthlyAnalysis,
     summaries: {
       client: $("#clientSummaryText").textContent,
@@ -962,6 +1013,12 @@ function exportJson() {
   anchor.click();
   anchor.remove();
   URL.revokeObjectURL(url);
+}
+
+function requestJsonImport() {
+  const confirmed = window.confirm("現在の入力内容と保存履歴を、読み込んだJSONで置き換えます。よろしいですか。");
+  if (!confirmed) return;
+  $("#jsonImportInput").click();
 }
 
 async function handleJsonImport(event) {
@@ -985,6 +1042,7 @@ async function handleJsonImport(event) {
 
 function restoreJsonPayload(payload) {
   restoredCandidates = payload.candidates || {};
+  customCandidates = normalizeCustomCandidates(payload.customCandidates);
   $$(".candidate-card").forEach((card) => card.remove());
   monthlyAnalysis = normalizeMonthlyAnalysis(payload.monthlyAnalysis);
   Object.entries(payload.form || {}).forEach(([id, value]) => {
@@ -1124,6 +1182,7 @@ function printMonthlyReport() {
 function loadSample() {
   setEntityType("corporate");
   $("#clientName").value = "株式会社サンプル製作所";
+  $("#inventoryFlag").value = "with";
   $("#fiscalMonth").value = "3";
   $("#visitMonth").value = "6";
   $("#participants").value = "社長、経理担当、松本会計";
@@ -1134,6 +1193,8 @@ function loadSample() {
   $("#decisions").value = "6月中に資金繰り予定表を更新し、次回面談で納税見込みを再確認する。";
   $("#homework").value = "社長：売掛金回収予定を確認\n松本会計：中間申告の要否と納付見込みを整理";
   $("#reflection").value = "採用の話題が広がりやすいため、次回は資金繰りと人員計画を分けて確認する。";
+  restoredCandidates = {};
+  customCandidates = emptyCustomCandidates();
   renderAll();
   saveDraft();
 }
@@ -1148,6 +1209,7 @@ function clearDraft() {
   setDefaultDate();
   localStorage.removeItem(draftKey);
   restoredCandidates = {};
+  customCandidates = emptyCustomCandidates();
   monthlyAnalysis = emptyMonthlyAnalysis();
   renderAll();
 }

@@ -72,34 +72,40 @@
           </div>
         </div>
 
-        <div class="field-grid">
-          <label>
-            <span>区分</span>
-            <select id="entityType">
-              <option value="corporate">法人</option>
-              <option value="individual">個人</option>
-            </select>
-          </label>
-          <label>
+        <div class="field-grid audit-field-grid">
+          <fieldset class="entity-type-field">
+            <legend>区分</legend>
+            <label class="radio-card">
+              <input type="radio" name="entityType" value="corporate" checked>
+              <span>法人</span>
+            </label>
+            <label class="radio-card">
+              <input type="radio" name="entityType" value="individual">
+              <span>個人</span>
+            </label>
+          </fieldset>
+          <label class="client-name-field">
             <span>法人名・屋号</span>
             <input id="clientName" type="text" placeholder="株式会社〇〇 / 〇〇商店">
           </label>
-          <label>
-            <span>決算月</span>
-            <select id="fiscalMonth"></select>
-          </label>
-          <label>
-            <span>訪問月</span>
-            <select id="visitMonth"></select>
-          </label>
-          <label>
-            <span>訪問日</span>
-            <input id="visitDate" type="date">
-          </label>
-          <label>
-            <span>参加者</span>
-            <input id="participants" type="text" placeholder="社長、経理担当、松本会計">
-          </label>
+          <div class="audit-meta-grid">
+            <label>
+              <span>決算月</span>
+              <select id="fiscalMonth"></select>
+            </label>
+            <label>
+              <span>訪問月</span>
+              <select id="visitMonth"></select>
+            </label>
+            <label>
+              <span>訪問日</span>
+              <input id="visitDate" type="date">
+            </label>
+            <label>
+              <span>参加者</span>
+              <input id="participants" type="text" placeholder="社長、経理担当、松本会計">
+            </label>
+          </div>
         </div>
 
         <div class="instruction-result">

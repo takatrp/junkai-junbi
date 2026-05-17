@@ -69,7 +69,7 @@ h3 {
 
 .app-header__inner,
 .app-shell {
-  width: min(1240px, calc(100% - 32px));
+  width: min(1760px, calc(100% - 32px));
   margin: 0 auto;
 }
 
@@ -262,6 +262,58 @@ h3 {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 14px;
+}
+
+.audit-field-grid {
+  grid-template-columns: 220px minmax(360px, 1fr);
+  align-items: end;
+  gap: 10px 14px;
+}
+
+.entity-type-field {
+  min-width: 0;
+  border: 0;
+  padding: 0;
+  margin: 0;
+}
+
+.entity-type-field legend {
+  margin-bottom: 6px;
+  color: #2a3a32;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.radio-card {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 42px;
+  margin-right: 6px;
+  border: 1px solid #cbd8d1;
+  border-radius: 8px;
+  padding: 8px 12px;
+  background: #fff;
+  font-weight: 700;
+}
+
+.radio-card input {
+  width: auto;
+  min-height: auto;
+  accent-color: var(--primary);
+}
+
+.radio-card span {
+  display: inline;
+  margin: 0;
+  font-size: 14px;
+}
+
+.audit-meta-grid {
+  grid-column: 1 / -1;
+  display: grid;
+  grid-template-columns: 130px 130px 170px minmax(420px, 1fr);
+  gap: 12px;
 }
 
 .result-grid {
@@ -793,6 +845,8 @@ button:focus-visible {
   .status-strip,
   .flow-tabs,
   .field-grid,
+  .audit-field-grid,
+  .audit-meta-grid,
   .file-grid,
   .data-status-grid,
   .report-kpi-grid,

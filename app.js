@@ -269,7 +269,7 @@ const categoryHeadings = {
 
 const draftKey = "monthlyAuditMeetingDraftV1";
 const recordKey = "monthlyAuditMeetingRecordsV1";
-const formIds = ["entityType", "clientName", "fiscalMonth", "visitMonth", "visitDate", "participants", "meetingAim", "pastManual", "presentManual", "futureManual", "decisions", "homework", "reflection"];
+const formIds = ["clientName", "fiscalMonth", "visitMonth", "visitDate", "participants", "meetingAim", "pastManual", "presentManual", "futureManual", "decisions", "homework", "reflection"];
 let restoredCandidates = {};
 let monthlyAnalysis = {
   balance: null,
@@ -285,14 +285,24 @@ function instruction(title, detail, category) {
 }
 
 function instructionLine(scope, text, category) {
+  const cleanedText = cleanInstructionText(text);
   return {
-    title: `${scope} ${text}`,
+    title: `${scope} ${cleanedText}`,
     detail: "",
     category,
     source: "所長指示",
     scope,
-    text
+    text: cleanedText
   };
+}
+
+function cleanInstructionText(text) {
+  return text
+    .replace(/\s+する(?=\s+(決算月|1か月後|$))/g, " ")
+    .replace(/する(?=\s+(決算月|1か月後))/g, "")
+    .replace(/\s*しない(?=\s|$)/g, "")
+    .replace(/\s{2,}/g, " ")
+    .trim();
 }
 
 function candidate(title, detail, source) {
@@ -321,6 +331,10 @@ function bindEvents() {
   formIds.forEach((id) => {
     $(`#${id}`).addEventListener("input", handleInputChange);
     $(`#${id}`).addEventListener("change", handleInputChange);
+  });
+
+  $$("input[name='entityType']").forEach((radio) => {
+    radio.addEventListener("change", handleInputChange);
   });
 
   $$(".flow-tab").forEach((tab) => {
@@ -373,6 +387,15 @@ function switchTab(category) {
   });
 }
 
+function selectedEntityType() {
+  return $("input[name='entityType']:checked")?.value || "corporate";
+}
+
+function setEntityType(value) {
+  const radio = $(`input[name='entityType'][value='${value || "corporate"}']`);
+  if (radio) radio.checked = true;
+}
+
 function renderAll() {
   refreshMonthlySuggestions();
   renderAuditPreparation();
@@ -383,7 +406,10 @@ function renderAll() {
 }
 
 function readState() {
-  return Object.fromEntries(formIds.map((id) => [id, $(`#${id}`).value.trim()]));
+  return {
+    entityType: selectedEntityType(),
+    ...Object.fromEntries(formIds.map((id) => [id, $(`#${id}`).value.trim()]))
+  };
 }
 
 function auditMonthIndex() {
@@ -394,7 +420,7 @@ function auditMonthIndex() {
 }
 
 function currentInstructions() {
-  const entity = $("#entityType").value;
+  const entity = selectedEntityType();
   const index = auditMonthIndex();
   const visit = Number($("#visitMonth").value);
   const data = instructionData[entity];
@@ -406,7 +432,7 @@ function currentInstructions() {
 }
 
 function renderAuditPreparation() {
-  const entity = $("#entityType").value;
+  const entity = selectedEntityType();
   const index = auditMonthIndex();
   const data = instructionData[entity];
   const instructions = currentInstructions();
@@ -1017,7 +1043,11 @@ function restoreDraft() {
     restoredCandidates = draft.candidates || {};
     if (draft.monthlyAnalysis) monthlyAnalysis = draft.monthlyAnalysis;
     Object.entries(draft.form || {}).forEach(([id, value]) => {
-      if ($(`#${id}`)) $(`#${id}`).value = value;
+      if (id === "entityType") {
+        setEntityType(value);
+      } else if ($(`#${id}`)) {
+        $(`#${id}`).value = value;
+      }
     });
   } catch {
     localStorage.removeItem(draftKey);
@@ -1129,7 +1159,7 @@ function printMonthlyReport() {
 }
 
 function loadSample() {
-  $("#entityType").value = "corporate";
+  setEntityType("corporate");
   $("#clientName").value = "株式会社サンプル製作所";
   $("#fiscalMonth").value = "3";
   $("#visitMonth").value = "6";
@@ -1148,12 +1178,9 @@ function loadSample() {
 function clearDraft() {
   if (!window.confirm("入力内容を初期化しますか。")) return;
   formIds.forEach((id) => {
-    if (id === "entityType") {
-      $(`#${id}`).value = "corporate";
-    } else {
-      $(`#${id}`).value = "";
-    }
+    $(`#${id}`).value = "";
   });
+  setEntityType("corporate");
   setDefaultDate();
   localStorage.removeItem(draftKey);
   restoredCandidates = {};

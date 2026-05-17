@@ -618,10 +618,12 @@ function categoryLead(category) {
 }
 
 function clientAgendaItems(category, topics, manual) {
-  const items = topics.map((topic) => ({
-    title: topic.title,
-    detail: topic.note || topic.detail
-  }));
+  const items = topics
+    .filter((topic) => topic.source !== "所長指示")
+    .map((topic) => ({
+      title: topic.title,
+      detail: topic.note || topic.detail
+    }));
   splitLines(manual).forEach((line) => {
     items.push({ title: "追加確認テーマ", detail: line });
   });

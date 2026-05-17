@@ -465,17 +465,14 @@ function renderCandidates() {
   const instructions = currentInstructions();
   const previous = { ...restoredCandidates, ...selectedCandidateMap() };
   Object.keys(categoryLabels).forEach((category) => {
-    const instructionCandidates = instructions
-      .filter((item) => item.category === category)
-      .map((item) => candidate(item.title, item.detail, "所長指示"));
-
+    // 所長指示はカンニングペーパーに必ず表示するため、選択候補からは除外する
     // CSV由来のサジェストを category フィールドで振り分ける
     // category未設定のものは "present" 扱い（後方互換）
     const dataCandidates = monthlyAnalysis.suggestions
       .filter((item) => (item.category || "present") === category)
       .map((item) => candidate(item.title, item.detail, "月次データ"));
 
-    const candidates = [...instructionCandidates, ...dataCandidates, ...baseCandidates[category]];
+    const candidates = [...dataCandidates, ...baseCandidates[category]];
     const container = $(`#${category}Candidates`);
     container.innerHTML = "";
     candidates.forEach((item, index) => {

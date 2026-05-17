@@ -580,7 +580,7 @@ function createClientSummary(state, grouped) {
     "本日の面談テーマ",
     ...agenda.sections.flatMap((section) => [
       `【${section.heading}】`,
-      ...section.items.map((item) => item.detail ? `・${item.title}\n  ${item.detail}` : `・${item.title}`)
+      ...section.items.map((item) => `・${item.title}`)
     ]),
     "",
     "次回までの確認事項",
@@ -652,7 +652,6 @@ function renderClientAgenda(state, grouped) {
               ${section.items.map((item) => `
                 <li>
                   <strong>${escapeHtml(item.title)}</strong>
-                  ${item.detail ? `<span>${escapeHtml(item.detail)}</span>` : ""}
                 </li>
               `).join("")}
             </ol>

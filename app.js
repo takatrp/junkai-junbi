@@ -478,6 +478,7 @@ function bindEvents() {
   $("#loadSample").addEventListener("click", loadSample);
   $("#clearDraft").addEventListener("click", clearDraft);
   $("#exportJson").addEventListener("click", exportJson);
+  $("#exportJsonResult").addEventListener("click", exportJson);
   $("#importJson").addEventListener("click", requestJsonImport);
   $("#jsonImportInput").addEventListener("change", handleJsonImport);
   $("#saveRecord").addEventListener("click", saveRecord);
@@ -666,6 +667,14 @@ function createCandidateCard(category, item, id, previous, index) {
     badge.textContent = item.importance === "must" ? "必須" : "推奨";
     title.insertAdjacentElement("afterend", badge);
   }
+  if (item.source === "手入力") {
+    const deleteButton = document.createElement("button");
+    deleteButton.className = "button button--subtle button--compact candidate-delete-button";
+    deleteButton.type = "button";
+    deleteButton.textContent = "削除";
+    deleteButton.addEventListener("click", () => deleteCustomCandidate(category, id));
+    node.appendChild(deleteButton);
+  }
 
   source.textContent = item.detail ? `${item.source}：${item.detail}` : item.source;
   textarea.value = previous?.note || "";
@@ -706,6 +715,18 @@ function addCustomCandidate(category) {
     title: title.trim(),
     detail: detail.trim()
   });
+  renderCandidates();
+  renderSummaries();
+  renderStatus();
+  saveDraft();
+}
+
+function deleteCustomCandidate(category, id) {
+  if (!categoryLabels[category]) return;
+  const confirmed = window.confirm("追加した項目を削除しますか。");
+  if (!confirmed) return;
+  customCandidates[category] = customCandidates[category].filter((item) => item.id !== id);
+  delete restoredCandidates[id];
   renderCandidates();
   renderSummaries();
   renderStatus();
@@ -773,9 +794,6 @@ function createClientSummary(state, grouped) {
       ...section.items.map((item) => `・${item.title}`)
     ]),
     "",
-    "次回までの確認事項",
-    ...agenda.homework.map((line) => `・${line}`),
-    "",
     "次回監査予定日時：　　月　　日（　）　　：　　",
     "",
     "メモ"
@@ -791,15 +809,10 @@ function createClientAgendaModel(state, grouped) {
     lead: categoryLead(category),
     items: clientAgendaItems(category, grouped[category], state[`${category}Manual`])
   }));
-  const homework = state.homework
-    ? splitLines(state.homework)
-    : defaultHomework(grouped).map((line) => line.replace(/^・/, ""));
-
   return {
     title: `${client}様 面談テーマ`,
     aim,
-    sections,
-    homework
+    sections
   };
 }
 
@@ -854,12 +867,6 @@ function renderClientAgenda(state, grouped) {
           </article>
         `).join("")}
       </section>
-      <section class="agenda-homework">
-        <h3>次回までの確認事項</h3>
-        <ul>
-          ${agenda.homework.map((line) => `<li>${escapeHtml(line)}</li>`).join("")}
-        </ul>
-      </section>
       <section class="agenda-nextvisit">
         <h3>次回監査予定日時</h3>
         <p class="agenda-nextvisit-line">　　月　　日（　）　　：　　</p>
@@ -870,12 +877,6 @@ function renderClientAgenda(state, grouped) {
       </section>
     </section>
   `;
-}
-
-function defaultHomework(grouped) {
-  const source = grouped.future.length ? grouped.future : [...grouped.present, ...grouped.past].slice(0, 3);
-  if (!source.length) return ["・次回面談までに、必要な数字・資料・確認事項を整理します。"];
-  return source.slice(0, 3).map((topic) => `・${topic.title}について、判断に必要な資料・担当・期限を確認します。`);
 }
 
 // ============================================================

@@ -620,6 +620,7 @@ button:focus-visible {
 }
 
 .candidate-card {
+  position: relative;
   border: 1px solid var(--line);
   border-radius: 6px;
   padding: 10px;
@@ -635,6 +636,7 @@ button:focus-visible {
   display: flex;
   align-items: center;
   gap: 10px;
+  padding-right: 64px;
 }
 
 .candidate-check input {
@@ -653,6 +655,14 @@ button:focus-visible {
   margin: 8px 0 10px;
   color: var(--muted);
   font-size: 14px;
+}
+
+.candidate-delete-button {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  min-height: 30px;
+  padding: 4px 10px;
 }
 
 .summary-grid {
@@ -741,14 +751,12 @@ button:focus-visible {
 }
 
 .agenda-purpose,
-.agenda-theme,
-.agenda-homework {
+.agenda-theme {
   padding: 18px 22px;
   border-top: 1px solid #dfe5e1;
 }
 
-.agenda-purpose h3,
-.agenda-homework h3 {
+.agenda-purpose h3 {
   margin-bottom: 6px;
   border-bottom: 0;
   padding-bottom: 0;
@@ -771,14 +779,12 @@ button:focus-visible {
   font-size: 15px;
 }
 
-.agenda-theme ol,
-.agenda-homework ul {
+.agenda-theme ol {
   margin: 12px 0 0;
   padding-left: 1.25em;
 }
 
-.agenda-theme li + li,
-.agenda-homework li + li {
+.agenda-theme li + li {
   margin-top: 10px;
 }
 

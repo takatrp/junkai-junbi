@@ -1,105 +1,7 @@
-let instructionData = {
-  corporate: {
-    pdf: "./所長の指示事項 法人.pdf",
-    label: "法人",
-    months: {
-      1: [
-        instruction("TPS1000仕訳読込後の確認", "前期末後決算仕訳・開始残高・残高移行に違和感がないか確認します。", "past"),
-        instruction("役員報酬・給与変更の確認", "社会保険・賞与・給与改定の有無を確認します。", "present")
-      ],
-      2: [
-        instruction("決算申告書控の保存・共有確認", "決算申告書控、決算報告書、別表等の保管状況を確認します。", "past"),
-        instruction("役員給与・登記事項の確認", "定期同額給与、事前確定届出給与、役員変更登記の必要性を確認します。", "present")
-      ],
-      3: [
-        instruction("MAS第1回検討会", "第1四半期の着地を確認し、期首計画との差を整理します。", "present"),
-        instruction("中間申告1回目の要否確認", "中間申告・予定納税の有無と納付時期を確認します。", "future")
-      ],
-      4: [
-        instruction("源泉所得税・住民税の納付確認", "納期の特例や毎月納付の対象を確認します。", "present")
-      ],
-      5: [
-        instruction("中間決算に向けた予測確認", "上期の利益・納税・資金繰りの見通しを確認します。", "future")
-      ],
-      6: [
-        instruction("MAS第2回検討会", "半期時点の実績と計画差、下期の打ち手を確認します。", "present"),
-        instruction("中間申告通知・仮決算要否確認", "予定申告か仮決算か、判断に必要な資料を確認します。", "future")
-      ],
-      7: [
-        instruction("法人税・地方税の中間納付確認", "中間納付書、納付期限、資金手当てを確認します。", "present")
-      ],
-      8: [
-        instruction("電子帳簿保存・証憑管理の確認", "電子取引データ、請求書、領収書の保存状況を確認します。", "present")
-      ],
-      9: [
-        instruction("MAS第3回検討会", "第3四半期の着地を確認し、決算までの見通しを整理します。", "future")
-      ],
-      10: [
-        instruction("決算前検討会", "決算予測、納税見込、役員報酬、在庫・売掛・借入を確認します。", "future"),
-        instruction("源泉所得税の納付確認", "納期の特例対象の納付時期と金額を確認します。", "present")
-      ],
-      11: [
-        instruction("消費税区分・届出の確認", "本則・簡易、課税事業者選択、インボイス、届出期限を確認します。", "future"),
-        instruction("次年度計画の素案作成", "来期の売上、粗利、人員、投資、資金の前提を整理します。", "future")
-      ],
-      12: [
-        instruction("決算直前チェック", "売上・仕入・棚卸・固定資産・役員貸付借入・未払計上を確認します。", "present"),
-        instruction("決算後の面談論点整理", "申告後に説明すべき事項、来期へ持ち越す課題を整理します。", "future")
-      ]
-    }
-  },
-  individual: {
-    pdf: "./所長の指示事項 個人.pdf",
-    label: "個人",
-    months: {
-      1: [
-        instruction("TPS2000仕訳読込後の確認", "前年からの繰越、開始残高、事業主貸借の整合を確認します。", "past"),
-        instruction("給与・専従者給与変更の確認", "専従者給与、給与改定、社会保険・源泉の変更を確認します。", "present")
-      ],
-      2: [
-        instruction("確定申告控・納税資料の整理", "申告書控、決算書、納付書、還付資料の保管状況を確認します。", "past")
-      ],
-      3: [
-        instruction("MAS第1回検討会", "1月からの実績と年間見込みを確認します。", "present"),
-        instruction("中間申告1回目の要否確認", "消費税等の中間申告が必要か確認します。", "future")
-      ],
-      4: [
-        instruction("源泉所得税・住民税の納付確認", "納付時期、特例対象、従業員分の確認を行います。", "present")
-      ],
-      5: [
-        instruction("納付書・予定納税の確認", "所得税・住民税・事業税等の納付予定と資金手当てを確認します。", "present"),
-        instruction("事業関連資産の異動確認", "車両、設備、借入、固定資産の取得・売却を確認します。", "past")
-      ],
-      6: [
-        instruction("MAS第2回検討会", "上期見込み、予定納税、資金繰りを整理します。", "present"),
-        instruction("予定納税・関与先への税額説明", "所得税の予定納税額と納付予定を確認します。", "future")
-      ],
-      7: [
-        instruction("予定納税第1期の確認", "納付期限、納付方法、資金繰りへの影響を確認します。", "present")
-      ],
-      8: [
-        instruction("電子帳簿保存法の適用確認", "電子取引データの保存、領収書・請求書の運用を確認します。", "present")
-      ],
-      9: [
-        instruction("MAS第3回検討会", "年末までの利益・納税・資金繰りを確認します。", "future")
-      ],
-      10: [
-        instruction("決算前検討会", "年末着地、節税余地、納税資金、設備投資予定を確認します。", "future"),
-        instruction("源泉所得税の納付確認", "納期の特例、年末調整前の源泉税額を確認します。", "present")
-      ],
-      11: [
-        instruction("予定納税第2期の確認", "納付期限、納付額、資金繰りを確認します。", "present"),
-        instruction("翌年の消費税・インボイス確認", "課税方式、届出、簡易課税、本則課税の判断を確認します。", "future")
-      ],
-      12: [
-        instruction("確定申告前チェック", "売上・経費・棚卸・家事按分・固定資産・控除資料を確認します。", "present"),
-        instruction("来年の経営計画・納税見通し", "翌年の売上目標、投資、資金、納税見通しを整理します。", "future")
-      ]
-    }
-  }
-};
-
-instructionData = {
+// ============================================================
+// instructionData：所長指示（巡回月別・カレンダー月別・毎月）
+// ============================================================
+const instructionData = {
   corporate: {
     pdf: "./所長の指示事項 法人.pdf",
     label: "法人",
@@ -237,24 +139,97 @@ instructionData = {
   }
 };
 
+// ============================================================
+// baseCandidates：毎回表示する基本候補メニュー
+//   各項目の detail は職員向けカンニング（「何を聞くか」まで落とす）
+// ============================================================
 const baseCandidates = {
   past: [
-    candidate("前回宿題の進捗確認", "前回決めたことが実行済み・途中・未着手のどれかを確認します。", "基本"),
-    candidate("前月からの数字の変化", "売上、粗利、固定費、資金残高で大きく動いたものを確認します。", "基本"),
-    candidate("過去の打ち手の効果確認", "投資、採用、借入、値上げなど過去の判断の効果を確認します。", "基本")
+    candidate(
+      "前回宿題の進捗確認",
+      "「前回お願いした○○の件、いかがでしたか？」と冒頭で必ず確認する。実行済み・途中・未着手のどれかを経営者に答えてもらう。",
+      "基本"
+    ),
+    candidate(
+      "売上・粗利の変化と背景",
+      "「先月と比べて売上が○円変わっています。何か思い当たる原因はありますか？」客数か単価か、商品・取引先ごとに掘り下げる。",
+      "基本"
+    ),
+    candidate(
+      "計画（予算）との差異の要因",
+      "「期初の目標に対して、今月は○円のプラス/マイナスです。なぜそうなったか一緒に整理しましょう。」原因が売上側か費用側かを確認する。",
+      "基本"
+    ),
+    candidate(
+      "過去の打ち手の結果確認",
+      "「以前ご検討されていた値上げ/採用/設備投資/借入について、その後どうなりましたか？」数字への影響を一緒に確認する。",
+      "基本"
+    ),
+    candidate(
+      "急変した勘定科目の背景",
+      "「○○の残高が先月から大きく動いています。一時的なものか継続的なものかを教えてください。」残高推移の異常値を指摘して背景を聞く。",
+      "基本"
+    )
   ],
   present: [
-    candidate("月次試算表の要点確認", "売上、粗利、固定費、営業利益、資金残高の現在地を確認します。", "基本"),
-    candidate("資金繰りと近い支払い", "納税、社会保険、借入返済、大きな支払い予定を確認します。", "基本"),
-    candidate("現場・人員・業務の詰まり", "採用、定着、教育、業務量、経理資料の遅れを確認します。", "基本")
+    candidate(
+      "月次試算表の要点確認",
+      "売上・限界利益・固定費・営業利益の4点を変動損益計算書で示し、「今月の数字のポイントはここです」と経営者に現在地を伝える。",
+      "基本"
+    ),
+    candidate(
+      "資金残高と近い支払い",
+      "「現在の手元資金は○円です。今月末までの納税・社会保険・借入返済の合計は○円なので、余裕は○円です。」資金ショートがないか確認する。",
+      "基本"
+    ),
+    candidate(
+      "限界利益率の水準",
+      "「今月の限界利益率は○%です。先月の○%、昨年の○%と比べていかがでしょうか？」変化の原因が仕入・外注・値引きのどれかを確認する。",
+      "基本"
+    ),
+    candidate(
+      "売掛金の回収状況",
+      "「売掛金の残高が○円あります。回収予定や回収が遅れているものはありますか？」滞留している取引先があれば理由と対応策を確認する。",
+      "基本"
+    ),
+    candidate(
+      "経営者の足元の関心・悩み",
+      "「最近、売上・仕入・人員・取引先など、特に気になっていることはありますか？」数字に出る前の変化を経営者の言葉で聞く。",
+      "基本"
+    )
   ],
   future: [
-    candidate("決算着地と納税見込み", "利益着地、納税予測、決算までの修正余地を確認します。", "基本"),
-    candidate("次の3か月の資金見通し", "入金予定と支払予定を並べ、資金が薄くなる月を確認します。", "基本"),
-    candidate("次回までの宿題整理", "誰が、いつまでに、何を確認すれば次回の判断が進むか整理します。", "基本")
+    candidate(
+      "決算着地と納税見込み",
+      "「このペースでいくと今期の利益は約○円、法人税・消費税の概算は約○円になります。」先手で提示することが信頼につながる。",
+      "基本"
+    ),
+    candidate(
+      "目標利益への残余対策",
+      "「目標利益まで残り○円です。売上を上げる方向と固定費を下げる方向、どちらで対応しますか？」経営者自身に選択させる。",
+      "基本"
+    ),
+    candidate(
+      "次の3か月の資金見通し",
+      "「来月から3か月の入金予定と支払予定を並べると、○月が一番資金が薄くなります。今から手を打っておきましょう。」",
+      "基本"
+    ),
+    candidate(
+      "設備投資・採用・借入の検討",
+      "「次の半年で検討している設備投資や採用、借入はありますか？今の利益と資金の状況から、タイミングを一緒に考えましょう。」",
+      "基本"
+    ),
+    candidate(
+      "次回までの宿題整理",
+      "「次回○月○日までに、○○について○○さんにご確認いただけますか？」必ず誰が・いつまでに・何をするかを明確にして面談を締める。",
+      "基本"
+    )
   ]
 };
 
+// ============================================================
+// カテゴリ定義
+// ============================================================
 const categoryLabels = {
   past: "過去",
   present: "現在",
@@ -267,9 +242,17 @@ const categoryHeadings = {
   future: "未来：決算・納税・次の打ち手"
 };
 
+// ============================================================
+// 状態管理
+// ============================================================
 const draftKey = "monthlyAuditMeetingDraftV1";
 const recordKey = "monthlyAuditMeetingRecordsV1";
-const formIds = ["clientName", "fiscalMonth", "visitMonth", "visitDate", "participants", "meetingAim", "pastManual", "presentManual", "futureManual", "decisions", "homework", "reflection"];
+const formIds = [
+  "clientName", "fiscalMonth", "visitMonth", "visitDate",
+  "participants", "meetingAim",
+  "pastManual", "presentManual", "futureManual",
+  "decisions", "homework", "reflection"
+];
 let restoredCandidates = {};
 let monthlyAnalysis = {
   balance: null,
@@ -277,13 +260,15 @@ let monthlyAnalysis = {
   suggestions: []
 };
 
+// ============================================================
+// DOM ユーティリティ
+// ============================================================
 const $ = (selector, root = document) => root.querySelector(selector);
 const $$ = (selector, root = document) => Array.from(root.querySelectorAll(selector));
 
-function instruction(title, detail, category) {
-  return { title, detail, category, source: "所長指示" };
-}
-
+// ============================================================
+// データ生成ヘルパー
+// ============================================================
 function instructionLine(scope, text, category) {
   const cleanedText = cleanInstructionText(text);
   return {
@@ -309,6 +294,9 @@ function candidate(title, detail, source) {
   return { title, detail, source };
 }
 
+// ============================================================
+// 初期化
+// ============================================================
 function init() {
   populateMonthSelects();
   bindEvents();
@@ -396,6 +384,9 @@ function setEntityType(value) {
   if (radio) radio.checked = true;
 }
 
+// ============================================================
+// 一括描画
+// ============================================================
 function renderAll() {
   refreshMonthlySuggestions();
   renderAuditPreparation();
@@ -431,6 +422,9 @@ function currentInstructions() {
   ];
 }
 
+// ============================================================
+// Step01：巡回監査準備の描画
+// ============================================================
 function renderAuditPreparation() {
   const entity = selectedEntityType();
   const index = auditMonthIndex();
@@ -461,6 +455,12 @@ function renderAuditPreparation() {
     : `<article class="instruction-card"><strong>該当指示なし</strong><p>PDF原本を確認し、必要な内容を面談メモへ追加してください。</p></article>`;
 }
 
+// ============================================================
+// Step03：候補カード描画
+//   ・所長指示 → category 属性で 過去/現在/未来 に振り分け済み
+//   ・月次データ（CSV）→ suggestion の category で各タブに振り分け
+//   ・基本候補 → baseCandidates で各タブに固定表示
+// ============================================================
 function renderCandidates() {
   const instructions = currentInstructions();
   const previous = { ...restoredCandidates, ...selectedCandidateMap() };
@@ -468,9 +468,13 @@ function renderCandidates() {
     const instructionCandidates = instructions
       .filter((item) => item.category === category)
       .map((item) => candidate(item.title, item.detail, "所長指示"));
-    const dataCandidates = category === "present"
-      ? monthlyAnalysis.suggestions.map((item) => candidate(item.title, item.detail, "月次データ"))
-      : [];
+
+    // CSV由来のサジェストを category フィールドで振り分ける
+    // category未設定のものは "present" 扱い（後方互換）
+    const dataCandidates = monthlyAnalysis.suggestions
+      .filter((item) => (item.category || "present") === category)
+      .map((item) => candidate(item.title, item.detail, "月次データ"));
+
     const candidates = [...instructionCandidates, ...dataCandidates, ...baseCandidates[category]];
     const container = $(`#${category}Candidates`);
     container.innerHTML = "";
@@ -497,7 +501,9 @@ function createCandidateCard(category, item, id, previous, index) {
   source.textContent = item.detail ? `${item.source}：${item.detail}` : item.source;
   textarea.value = previous?.note || "";
   const hasPrevious = Boolean(previous);
-  checkbox.checked = hasPrevious ? Boolean(previous.checked) : Boolean((item.source === "所長指示" || item.source === "月次データ") && index < 5);
+  checkbox.checked = hasPrevious
+    ? Boolean(previous.checked)
+    : Boolean((item.source === "所長指示" || item.source === "月次データ") && index < 5);
   node.classList.toggle("is-selected", checkbox.checked || Boolean(textarea.value.trim()));
 
   checkbox.addEventListener("change", () => {
@@ -555,6 +561,9 @@ function groupedTopics() {
   };
 }
 
+// ============================================================
+// Step04：サマリー描画（クライアント共有用 + カンニングペーパー）
+// ============================================================
 function renderSummaries() {
   const state = readState();
   const grouped = groupedTopics();
@@ -666,12 +675,317 @@ function defaultHomework(grouped) {
   return source.slice(0, 3).map((topic) => `・${topic.title}について、判断に必要な資料・担当・期限を確認します。`);
 }
 
+// ============================================================
+// カンニングペーパー（詳細版）：面談の進め方を問いかけ型で強化
+// ============================================================
+function createDetailedSummary(state, grouped) {
+  const index = auditMonthIndex();
+  const instructions = currentInstructions();
+  return [
+    "月次巡回監査 詳細版カンニングペーパー",
+    "",
+    `対象：${state.clientName || "未入力"} / ${instructionData[state.entityType].label}`,
+    `決算月：${state.fiscalMonth || "-"}月、訪問月：${state.visitMonth || "-"}月、巡回${index || "-"}か月目`,
+    `PDF：${instructionData[state.entityType].pdf}`,
+    "",
+    "【所長指示 該当項目】",
+    ...(instructions.length
+      ? instructions.map((item) => item.detail ? `・${item.title}：${item.detail}` : `・${item.title}`)
+      : ["・該当月の指示事項をPDF原本で確認してください。"]),
+    "",
+    "【月次データ サジェスト】",
+    ...(monthlyAnalysis.suggestions.length
+      ? monthlyAnalysis.suggestions.map((item) => `・${item.title}（${item.category || "present"}）：${item.detail}`)
+      : ["・月次CSVを取り込むと、数値から伝えるべきポイントを表示します。"]),
+    "",
+    "【面談の進め方】",
+    "1. 【過去を確定】まず経営者に話してもらう",
+    "   「前回のご宿題はいかがでしたか？」",
+    "   「先月と比べて、何か変化はありましたか？」",
+    "   ※ 職員が説明する場ではなく、経営者に語ってもらう場。聞き役に徹する。",
+    "2. 【現在を共有】数字で今の状態を確認する",
+    "   「現在の資金残高は○円です。近い支払いと合わせると、余裕は○円になります。」",
+    "   「今月の限界利益率は○%です。先月の○%と比べてどう思われますか？」",
+    "   ※ 数字は職員が準備して提示する。経営者が驚く数字は必ず背景を聞く。",
+    "3. 【未来を設計】経営者に描いてもらう",
+    "   「このペースでいくと決算は○円の見込みです。そこへ向けて次に何をしますか？」",
+    "   「納税の概算は○円です。資金の手当ては今のうちから考えておきましょう。」",
+    "   ※ 未来を語るのは経営者。職員はその判断を数字で裏づけ、問いかける役に徹する。",
+    "4. 【宿題を決める】必ず誰が・いつまでに・何をするかを確認して締める",
+    "   「次回○月○日までに、○○について○○さんにご確認いただけますか？」",
+    "   ※ 宿題なしで終わる面談は「報告会」に終わる。必ず設定する。",
+    "",
+    ...detailedTopicBlock("past", grouped.past, state.pastManual),
+    "",
+    ...detailedTopicBlock("present", grouped.present, state.presentManual),
+    "",
+    ...detailedTopicBlock("future", grouped.future, state.futureManual),
+    "",
+    "【面談結果】",
+    `決まったこと：${state.decisions || "未入力"}`,
+    `宿題：${state.homework || "未入力"}`,
+    `振り返り：${state.reflection || "未入力"}`
+  ].join("\n");
+}
+
+function detailedTopicBlock(category, topics, manual) {
+  const lines = [`【${categoryHeadings[category]}】`];
+  if (!topics.length && !manual.trim()) {
+    lines.push("・未選択");
+    return lines;
+  }
+  topics.forEach((topic) => {
+    lines.push(`・${topic.title}（${topic.source}）`);
+    if (topic.detail) lines.push(`  確認観点：${topic.detail}`);
+    lines.push(`  面談メモ：${topic.note || "未入力"}`);
+  });
+  splitLines(manual).forEach((line) => lines.push(`・追加メモ：${line}`));
+  return lines;
+}
+
+function renderStatus() {
+  const state = readState();
+  const index = auditMonthIndex();
+  $("#statusEntity").textContent = state.clientName || instructionData[state.entityType].label;
+  $("#statusAuditMonth").textContent = index ? `${index}か月目` : "-";
+  $("#statusInstructionCount").textContent = `${currentInstructions().length}件`;
+  $("#statusTopicCount").textContent = `${selectedTopics().length}件`;
+}
+
+// ============================================================
+// 下書き保存・復元
+// ============================================================
+function saveDraft() {
+  const draft = {
+    form: readState(),
+    candidates: selectedCandidateMap(),
+    monthlyAnalysis
+  };
+  localStorage.setItem(draftKey, JSON.stringify(draft));
+}
+
+function restoreDraft() {
+  const raw = localStorage.getItem(draftKey);
+  if (!raw) return;
+  try {
+    const draft = JSON.parse(raw);
+    restoredCandidates = draft.candidates || {};
+    if (draft.monthlyAnalysis) monthlyAnalysis = draft.monthlyAnalysis;
+    Object.entries(draft.form || {}).forEach(([id, value]) => {
+      if (id === "entityType") {
+        setEntityType(value);
+      } else if ($(`#${id}`)) {
+        $(`#${id}`).value = value;
+      }
+    });
+  } catch {
+    localStorage.removeItem(draftKey);
+  }
+}
+
+// ============================================================
+// 面談結果の保存・表示
+// ============================================================
+function saveRecord() {
+  const state = readState();
+  const record = {
+    id: crypto.randomUUID ? crypto.randomUUID() : String(Date.now()),
+    savedAt: new Date().toISOString(),
+    clientName: state.clientName || "未入力",
+    visitDate: state.visitDate || "",
+    auditMonth: auditMonthIndex(),
+    detailed: $("#detailedSummaryText").textContent,
+    client: $("#clientSummaryText").textContent,
+    decisions: state.decisions,
+    homework: state.homework,
+    reflection: state.reflection
+  };
+  const records = loadRecords();
+  records.unshift(record);
+  localStorage.setItem(recordKey, JSON.stringify(records.slice(0, 20)));
+  renderRecords();
+}
+
+function loadRecords() {
+  try {
+    return JSON.parse(localStorage.getItem(recordKey) || "[]");
+  } catch {
+    return [];
+  }
+}
+
+function renderRecords() {
+  const records = loadRecords();
+  $("#recordList").innerHTML = records.length
+    ? records.map((record) => `
+      <article class="record-card">
+        <div>
+          <strong>${escapeHtml(record.clientName)}</strong>
+          <p>${escapeHtml(record.visitDate || "日付未設定")} / 巡回${record.auditMonth || "-"}か月目 / ${new Date(record.savedAt).toLocaleString("ja-JP")}</p>
+        </div>
+        <button class="button button--subtle" type="button" data-load-record="${escapeHtml(record.id)}">読込</button>
+      </article>
+    `).join("")
+    : `<article class="record-card"><div><strong>保存履歴はまだありません</strong><p>面談後に宿題や振り返りを入力して保存できます。</p></div></article>`;
+
+  $$("[data-load-record]").forEach((button) => {
+    button.addEventListener("click", () => {
+      const record = loadRecords().find((item) => item.id === button.dataset.loadRecord);
+      if (!record) return;
+      $("#clientSummaryText").textContent = record.client;
+      $("#detailedSummaryText").textContent = record.detailed;
+      $("#decisions").value = record.decisions || "";
+      $("#homework").value = record.homework || "";
+      $("#reflection").value = record.reflection || "";
+    });
+  });
+}
+
+// ============================================================
+// コピー・印刷
+// ============================================================
+async function copyText(selector, buttonSelector, originalLabel) {
+  try {
+    await navigator.clipboard.writeText($(selector).textContent);
+    const button = $(buttonSelector);
+    button.textContent = "コピー済み";
+    setTimeout(() => {
+      button.textContent = originalLabel;
+    }, 1200);
+  } catch {
+    window.alert("コピーできませんでした。対象の文章を選択してコピーしてください。");
+  }
+}
+
+function printClientSummary() {
+  renderSummaries();
+  document.body.classList.add("print-client-summary");
+  const cleanup = () => {
+    document.body.classList.remove("print-client-summary");
+    window.removeEventListener("afterprint", cleanup);
+  };
+  window.addEventListener("afterprint", cleanup);
+  window.print();
+  window.setTimeout(cleanup, 1200);
+}
+
+function printDetailedSummary() {
+  renderSummaries();
+  document.body.classList.add("print-detailed-summary");
+  const cleanup = () => {
+    document.body.classList.remove("print-detailed-summary");
+    window.removeEventListener("afterprint", cleanup);
+  };
+  window.addEventListener("afterprint", cleanup);
+  window.print();
+  window.setTimeout(cleanup, 1200);
+}
+
+function printMonthlyReport() {
+  renderMonthlyReport();
+  document.body.classList.add("print-monthly-report");
+  const cleanup = () => {
+    document.body.classList.remove("print-monthly-report");
+    window.removeEventListener("afterprint", cleanup);
+  };
+  window.addEventListener("afterprint", cleanup);
+  window.print();
+  window.setTimeout(cleanup, 1200);
+}
+
+// ============================================================
+// サンプル読込・初期化
+// ============================================================
+function loadSample() {
+  setEntityType("corporate");
+  $("#clientName").value = "株式会社サンプル製作所";
+  $("#fiscalMonth").value = "3";
+  $("#visitMonth").value = "6";
+  $("#participants").value = "社長、経理担当、松本会計";
+  $("#meetingAim").value = "第1四半期の月次着地、資金繰り、所長指示事項の確認";
+  $("#pastManual").value = "前回依頼した売掛金回収予定表の更新状況を確認する。";
+  $("#presentManual").value = "粗利率が前月比で低下しているため、材料費と外注費の増減を確認する。";
+  $("#futureManual").value = "夏季賞与と納税予定を踏まえ、8月までの資金繰りを確認する。";
+  $("#decisions").value = "6月中に資金繰り予定表を更新し、次回面談で納税見込みを再確認する。";
+  $("#homework").value = "社長：売掛金回収予定を確認\n松本会計：中間申告の要否と納付見込みを整理";
+  $("#reflection").value = "採用の話題が広がりやすいため、次回は資金繰りと人員計画を分けて確認する。";
+  renderAll();
+  saveDraft();
+}
+
+function clearDraft() {
+  if (!window.confirm("入力内容を初期化しますか。")) return;
+  formIds.forEach((id) => {
+    $(`#${id}`).value = "";
+  });
+  setEntityType("corporate");
+  setDefaultDate();
+  localStorage.removeItem(draftKey);
+  restoredCandidates = {};
+  monthlyAnalysis = { balance: null, profit: null, suggestions: [] };
+  renderAll();
+}
+
+// ============================================================
+// 数値フォーマット ユーティリティ
+// ============================================================
+function toNumber(value) {
+  if (value === null || value === undefined || value === "") return null;
+  const normalized = String(value).replace(/,/g, "").replace(/△/g, "-").trim();
+  const parsed = Number(normalized);
+  return Number.isFinite(parsed) ? parsed : null;
+}
+
+function formatMoney(value) {
+  if (!Number.isFinite(value)) return "-";
+  return `${Math.round(value).toLocaleString("ja-JP")}円`;
+}
+
+function formatSignedMoney(value) {
+  if (!Number.isFinite(value)) return "-";
+  const sign = value > 0 ? "+" : "";
+  return `${sign}${Math.round(value).toLocaleString("ja-JP")}円`;
+}
+
+function formatRate(value) {
+  if (!Number.isFinite(value)) return "-";
+  return `${roundOne(value)}%`;
+}
+
+function formatPercent(value) {
+  if (!Number.isFinite(value)) return "-";
+  return `${roundOne(value)}%`;
+}
+
+function roundOne(value) {
+  return Math.round(value * 10) / 10;
+}
+
+function splitLines(value) {
+  return value.split(/\n+/).map((line) => line.trim()).filter(Boolean);
+}
+
+function escapeHtml(value) {
+  return String(value).replace(/[&<>"']/g, (char) => ({
+    "&": "&amp;",
+    "<": "&lt;",
+    ">": "&gt;",
+    '"': "&quot;",
+    "'": "&#039;"
+  })[char]);
+}
+
+// ============================================================
+// CSV 取込・分析
+// ============================================================
 async function handleCsvImport(kind, file) {
   if (!file) return;
   try {
     const text = await readCsvText(file);
     const rows = parseCsv(text).filter((row) => row.some((cell) => String(cell).trim()));
-    monthlyAnalysis[kind] = kind === "balance" ? analyzeBalanceCsv(rows, file.name) : analyzeProfitCsv(rows, file.name);
+    monthlyAnalysis[kind] = kind === "balance"
+      ? analyzeBalanceCsv(rows, file.name)
+      : analyzeProfitCsv(rows, file.name);
     renderAll();
     saveDraft();
   } catch (error) {
@@ -728,6 +1042,13 @@ function parseCsv(text) {
   return rows;
 }
 
+// ============================================================
+// 変動損益CSV分析
+//   suggestions に category を付与して過去/現在/未来タブに振り分ける
+//   past  : 結果の記録（計画比・前年比 → 「なぜこうなったか」）
+//   present: 今の状態（限界利益率・人件費 → 「今どうなっているか」）
+//   future : 見通し（利益着地 → 「これからどうなるか」）
+// ============================================================
 function analyzeProfitCsv(rows, fileName) {
   const body = rows.slice(1);
   const rowByName = (name) => body.find((row) => row[0] === name) || null;
@@ -771,40 +1092,55 @@ function analyzeProfitCsv(rows, fileName) {
   const contribution = byName["部門貢献利益"] || byName["部門達成利益"];
   const equipment = byName["設備費"];
 
+  // 過去：結果の振り返り（計画比・前年比 → なぜそうなったか）
   if (sales) {
     suggestions.push({
       title: "売上の計画比・前年比",
-      detail: `当月売上は${formatMoney(sales.monthActual)}、計画比${formatRate(sales.monthPlanRate)}、前年比${formatRate(sales.monthYoY)}です。計画差と前年差の要因を確認します。`
+      detail: `当月売上は${formatMoney(sales.monthActual)}、計画比${formatRate(sales.monthPlanRate)}、前年比${formatRate(sales.monthYoY)}。計画差と前年差の要因を確認します。`,
+      category: "past"
     });
   }
+
+  // 現在：今の状態（限界利益率・人件費 → 今どうなっているか）
   if (marginal) {
     suggestions.push({
       title: "限界利益率の確認",
-      detail: `当月の限界利益は${formatMoney(marginal.monthActual)}、限界利益率は${formatPercent(marginal.monthShare)}、計画比${formatRate(marginal.monthPlanRate)}です。売上より粗利側に課題がないか確認します。`
+      detail: `当月の限界利益は${formatMoney(marginal.monthActual)}、限界利益率は${formatPercent(marginal.monthShare)}、計画比${formatRate(marginal.monthPlanRate)}。売上より粗利側に課題がないか確認します。`,
+      category: "present"
     });
   }
   if (labor && labor.monthPlanRate && labor.monthPlanRate >= 110) {
     suggestions.push({
       title: "人件費が計画を上回っています",
-      detail: `当月人件費は${formatMoney(labor.monthActual)}、計画比${formatRate(labor.monthPlanRate)}です。残業・賞与・採用・外注との関係を確認します。`
+      detail: `当月人件費は${formatMoney(labor.monthActual)}、計画比${formatRate(labor.monthPlanRate)}。残業・賞与・採用・外注との関係を確認します。`,
+      category: "present"
     });
   }
   if (equipment && equipment.monthPlanRate && equipment.monthPlanRate >= 150) {
     suggestions.push({
       title: "設備費の増加要因",
-      detail: `当月設備費は${formatMoney(equipment.monthActual)}、計画比${formatRate(equipment.monthPlanRate)}です。一時費用か継続費用か確認します。`
+      detail: `当月設備費は${formatMoney(equipment.monthActual)}、計画比${formatRate(equipment.monthPlanRate)}。一時費用か継続費用かを確認します。`,
+      category: "present"
     });
   }
+
+  // 未来：着地見通し（これからどうなるか）
   if (contribution) {
     suggestions.push({
       title: "利益着地の見通し",
-      detail: `当月の貢献利益は${formatMoney(contribution.monthActual)}、計画比${formatRate(contribution.monthPlanRate)}です。当期累計では${formatMoney(contribution.termActual)}です。決算着地への影響を確認します。`
+      detail: `当月の貢献利益は${formatMoney(contribution.monthActual)}、計画比${formatRate(contribution.monthPlanRate)}。当期累計では${formatMoney(contribution.termActual)}。決算着地への影響を確認します。`,
+      category: "future"
     });
   }
 
   return { fileName, metrics, suggestions };
 }
 
+// ============================================================
+// 残高推移CSV分析
+//   present: 今の資金・売掛・棚卸の状態
+//   past   : 大きく動いた科目の背景確認
+// ============================================================
 function analyzeBalanceCsv(rows, fileName) {
   const header = rows[0] || [];
   const monthIndexes = header
@@ -833,28 +1169,36 @@ function analyzeBalanceCsv(rows, fileName) {
     .slice(0, 5);
 
   const suggestions = [];
+
+  // 現在：資金・売掛・棚卸の状態
   if (cash) {
     suggestions.push({
       title: "現預金残高の推移",
-      detail: `${latest?.value || "当月"}の現預金小計は${formatMoney(cash.latest)}、前月差${formatSignedMoney(cash.latest - cash.previous)}です。近い支払いと資金余力を確認します。`
+      detail: `${latest?.value || "当月"}の現預金小計は${formatMoney(cash.latest)}、前月差${formatSignedMoney(cash.latest - cash.previous)}。近い支払いと資金余力を確認します。`,
+      category: "present"
     });
   }
   if (ar) {
     suggestions.push({
       title: "売掛金残高の確認",
-      detail: `${latest?.value || "当月"}の売掛金は${formatMoney(ar.latest)}、前月差${formatSignedMoney(ar.latest - ar.previous)}、比率${formatRate(ar.ratio)}です。回収予定と滞留の有無を確認します。`
+      detail: `${latest?.value || "当月"}の売掛金は${formatMoney(ar.latest)}、前月差${formatSignedMoney(ar.latest - ar.previous)}、比率${formatRate(ar.ratio)}。回収予定と滞留の有無を確認します。`,
+      category: "present"
     });
   }
   if (inventory) {
     suggestions.push({
       title: "棚卸資産の増減確認",
-      detail: `${latest?.value || "当月"}の棚卸資産計は${formatMoney(inventory.latest)}、前月差${formatSignedMoney(inventory.latest - inventory.previous)}です。実地棚卸・滞留在庫を確認します。`
+      detail: `${latest?.value || "当月"}の棚卸資産計は${formatMoney(inventory.latest)}、前月差${formatSignedMoney(inventory.latest - inventory.previous)}。実地棚卸・滞留在庫を確認します。`,
+      category: "present"
     });
   }
+
+  // 過去：残高が急変した科目 → 「なぜ動いたか」の確認
   if (changes.length) {
     suggestions.push({
       title: "残高変動が大きい科目",
-      detail: changes.map((row) => `${row.name} ${formatSignedMoney(row.change)}`).join("、") + "。大きな増減の理由を確認します。"
+      detail: changes.map((row) => `${row.name} ${formatSignedMoney(row.change)}`).join("、") + "。大きな増減の背景を確認します。",
+      category: "past"
     });
   }
 
@@ -868,6 +1212,9 @@ function analyzeBalanceCsv(rows, fileName) {
   };
 }
 
+// ============================================================
+// 月次サジェスト（Step02 プレビュー）
+// ============================================================
 function refreshMonthlySuggestions() {
   monthlyAnalysis.suggestions = [
     ...(monthlyAnalysis.profit?.suggestions || []),
@@ -887,11 +1234,15 @@ function renderMonthlySuggestionList() {
   list.innerHTML = monthlyAnalysis.suggestions.map((item) => `
     <article class="monthly-suggestion-card">
       <strong>${escapeHtml(item.title)}</strong>
+      <span class="source-pill">${escapeHtml(categoryLabels[item.category || "present"])}</span>
       <p>${escapeHtml(item.detail)}</p>
     </article>
   `).join("");
 }
 
+// ============================================================
+// Step05：月次レポート
+// ============================================================
 function renderMonthlyReport() {
   const text = createMonthlyReportText();
   $("#monthlyReportText").textContent = text;
@@ -968,270 +1319,7 @@ function reportMetricLines() {
   return reportMetricCards().map((card) => `・${card.label}：${card.value}（${card.note}）`);
 }
 
-function createDetailedSummary(state, grouped) {
-  const index = auditMonthIndex();
-  const instructions = currentInstructions();
-  return [
-    "月次巡回監査 詳細版カンニングペーパー",
-    "",
-    `対象：${state.clientName || "未入力"} / ${instructionData[state.entityType].label}`,
-    `決算月：${state.fiscalMonth || "-"}月、訪問月：${state.visitMonth || "-"}月、巡回${index || "-"}か月目`,
-    `PDF：${instructionData[state.entityType].pdf}`,
-    "",
-    "【所長指示 該当項目】",
-    ...(instructions.length ? instructions.map((item) => item.detail ? `・${item.title}：${item.detail}` : `・${item.title}`) : ["・該当月の指示事項をPDF原本で確認してください。"]),
-    "",
-    "【月次データ サジェスト】",
-    ...(monthlyAnalysis.suggestions.length ? monthlyAnalysis.suggestions.map((item) => `・${item.title}：${item.detail}`) : ["・月次CSVを取り込むと、数値から伝えるべきポイントを表示します。"]),
-    "",
-    "【面談の進め方】",
-    "1. 前回宿題と前月からの変化を確認する。",
-    "2. 月次数値、資金、税務手続、所長指示の該当事項を確認する。",
-    "3. 決算・納税・次回までの宿題へつなげる。",
-    "",
-    ...detailedTopicBlock("past", grouped.past, state.pastManual),
-    "",
-    ...detailedTopicBlock("present", grouped.present, state.presentManual),
-    "",
-    ...detailedTopicBlock("future", grouped.future, state.futureManual),
-    "",
-    "【面談結果】",
-    `決まったこと：${state.decisions || "未入力"}`,
-    `宿題：${state.homework || "未入力"}`,
-    `振り返り：${state.reflection || "未入力"}`
-  ].join("\n");
-}
-
-function detailedTopicBlock(category, topics, manual) {
-  const lines = [`【${categoryHeadings[category]}】`];
-  if (!topics.length && !manual.trim()) {
-    lines.push("・未選択");
-    return lines;
-  }
-  topics.forEach((topic) => {
-    lines.push(`・${topic.title}（${topic.source}）`);
-    if (topic.detail) lines.push(`  確認観点：${topic.detail}`);
-    lines.push(`  面談メモ：${topic.note || "未入力"}`);
-  });
-  splitLines(manual).forEach((line) => lines.push(`・追加メモ：${line}`));
-  return lines;
-}
-
-function renderStatus() {
-  const state = readState();
-  const index = auditMonthIndex();
-  $("#statusEntity").textContent = state.clientName || instructionData[state.entityType].label;
-  $("#statusAuditMonth").textContent = index ? `${index}か月目` : "-";
-  $("#statusInstructionCount").textContent = `${currentInstructions().length}件`;
-  $("#statusTopicCount").textContent = `${selectedTopics().length}件`;
-}
-
-function saveDraft() {
-  const draft = {
-    form: readState(),
-    candidates: selectedCandidateMap(),
-    monthlyAnalysis
-  };
-  localStorage.setItem(draftKey, JSON.stringify(draft));
-}
-
-function restoreDraft() {
-  const raw = localStorage.getItem(draftKey);
-  if (!raw) return;
-  try {
-    const draft = JSON.parse(raw);
-    restoredCandidates = draft.candidates || {};
-    if (draft.monthlyAnalysis) monthlyAnalysis = draft.monthlyAnalysis;
-    Object.entries(draft.form || {}).forEach(([id, value]) => {
-      if (id === "entityType") {
-        setEntityType(value);
-      } else if ($(`#${id}`)) {
-        $(`#${id}`).value = value;
-      }
-    });
-  } catch {
-    localStorage.removeItem(draftKey);
-  }
-}
-
-function saveRecord() {
-  const state = readState();
-  const record = {
-    id: crypto.randomUUID ? crypto.randomUUID() : String(Date.now()),
-    savedAt: new Date().toISOString(),
-    clientName: state.clientName || "未入力",
-    visitDate: state.visitDate || "",
-    auditMonth: auditMonthIndex(),
-    detailed: $("#detailedSummaryText").textContent,
-    client: $("#clientSummaryText").textContent,
-    decisions: state.decisions,
-    homework: state.homework,
-    reflection: state.reflection
-  };
-  const records = loadRecords();
-  records.unshift(record);
-  localStorage.setItem(recordKey, JSON.stringify(records.slice(0, 20)));
-  renderRecords();
-}
-
-function loadRecords() {
-  try {
-    return JSON.parse(localStorage.getItem(recordKey) || "[]");
-  } catch {
-    return [];
-  }
-}
-
-function renderRecords() {
-  const records = loadRecords();
-  $("#recordList").innerHTML = records.length
-    ? records.map((record) => `
-      <article class="record-card">
-        <div>
-          <strong>${escapeHtml(record.clientName)}</strong>
-          <p>${escapeHtml(record.visitDate || "日付未設定")} / 巡回${record.auditMonth || "-"}か月目 / ${new Date(record.savedAt).toLocaleString("ja-JP")}</p>
-        </div>
-        <button class="button button--subtle" type="button" data-load-record="${escapeHtml(record.id)}">読込</button>
-      </article>
-    `).join("")
-    : `<article class="record-card"><div><strong>保存履歴はまだありません</strong><p>面談後に宿題や振り返りを入力して保存できます。</p></div></article>`;
-
-  $$("[data-load-record]").forEach((button) => {
-    button.addEventListener("click", () => {
-      const record = loadRecords().find((item) => item.id === button.dataset.loadRecord);
-      if (!record) return;
-      $("#clientSummaryText").textContent = record.client;
-      $("#detailedSummaryText").textContent = record.detailed;
-      $("#decisions").value = record.decisions || "";
-      $("#homework").value = record.homework || "";
-      $("#reflection").value = record.reflection || "";
-    });
-  });
-}
-
-async function copyText(selector, buttonSelector, originalLabel) {
-  try {
-    await navigator.clipboard.writeText($(selector).textContent);
-    const button = $(buttonSelector);
-    button.textContent = "コピー済み";
-    setTimeout(() => {
-      button.textContent = originalLabel;
-    }, 1200);
-  } catch {
-    window.alert("コピーできませんでした。対象の文章を選択してコピーしてください。");
-  }
-}
-
-function printClientSummary() {
-  renderSummaries();
-  document.body.classList.add("print-client-summary");
-  const cleanup = () => {
-    document.body.classList.remove("print-client-summary");
-    window.removeEventListener("afterprint", cleanup);
-  };
-  window.addEventListener("afterprint", cleanup);
-  window.print();
-  window.setTimeout(cleanup, 1200);
-}
-
-function printDetailedSummary() {
-  renderSummaries();
-  document.body.classList.add("print-detailed-summary");
-  const cleanup = () => {
-    document.body.classList.remove("print-detailed-summary");
-    window.removeEventListener("afterprint", cleanup);
-  };
-  window.addEventListener("afterprint", cleanup);
-  window.print();
-  window.setTimeout(cleanup, 1200);
-}
-
-function printMonthlyReport() {
-  renderMonthlyReport();
-  document.body.classList.add("print-monthly-report");
-  const cleanup = () => {
-    document.body.classList.remove("print-monthly-report");
-    window.removeEventListener("afterprint", cleanup);
-  };
-  window.addEventListener("afterprint", cleanup);
-  window.print();
-  window.setTimeout(cleanup, 1200);
-}
-
-function loadSample() {
-  setEntityType("corporate");
-  $("#clientName").value = "株式会社サンプル製作所";
-  $("#fiscalMonth").value = "3";
-  $("#visitMonth").value = "6";
-  $("#participants").value = "社長、経理担当、松本会計";
-  $("#meetingAim").value = "第1四半期の月次着地、資金繰り、所長指示事項の確認";
-  $("#pastManual").value = "前回依頼した売掛金回収予定表の更新状況を確認する。";
-  $("#presentManual").value = "粗利率が前月比で低下しているため、材料費と外注費の増減を確認する。";
-  $("#futureManual").value = "夏季賞与と納税予定を踏まえ、8月までの資金繰りを確認する。";
-  $("#decisions").value = "6月中に資金繰り予定表を更新し、次回面談で納税見込みを再確認する。";
-  $("#homework").value = "社長：売掛金回収予定を確認\n松本会計：中間申告の要否と納付見込みを整理";
-  $("#reflection").value = "採用の話題が広がりやすいため、次回は資金繰りと人員計画を分けて確認する。";
-  renderAll();
-  saveDraft();
-}
-
-function clearDraft() {
-  if (!window.confirm("入力内容を初期化しますか。")) return;
-  formIds.forEach((id) => {
-    $(`#${id}`).value = "";
-  });
-  setEntityType("corporate");
-  setDefaultDate();
-  localStorage.removeItem(draftKey);
-  restoredCandidates = {};
-  monthlyAnalysis = { balance: null, profit: null, suggestions: [] };
-  renderAll();
-}
-
-function toNumber(value) {
-  if (value === null || value === undefined || value === "") return null;
-  const normalized = String(value).replace(/,/g, "").replace(/△/g, "-").trim();
-  const parsed = Number(normalized);
-  return Number.isFinite(parsed) ? parsed : null;
-}
-
-function formatMoney(value) {
-  if (!Number.isFinite(value)) return "-";
-  return `${Math.round(value).toLocaleString("ja-JP")}円`;
-}
-
-function formatSignedMoney(value) {
-  if (!Number.isFinite(value)) return "-";
-  const sign = value > 0 ? "+" : "";
-  return `${sign}${Math.round(value).toLocaleString("ja-JP")}円`;
-}
-
-function formatRate(value) {
-  if (!Number.isFinite(value)) return "-";
-  return `${roundOne(value)}%`;
-}
-
-function formatPercent(value) {
-  if (!Number.isFinite(value)) return "-";
-  return `${roundOne(value)}%`;
-}
-
-function roundOne(value) {
-  return Math.round(value * 10) / 10;
-}
-
-function splitLines(value) {
-  return value.split(/\n+/).map((line) => line.trim()).filter(Boolean);
-}
-
-function escapeHtml(value) {
-  return String(value).replace(/[&<>"']/g, (char) => ({
-    "&": "&amp;",
-    "<": "&lt;",
-    ">": "&gt;",
-    '"': "&quot;",
-    "'": "&#039;"
-  })[char]);
-}
-
+// ============================================================
+// 起動
+// ============================================================
 init();

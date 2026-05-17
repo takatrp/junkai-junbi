@@ -74,11 +74,17 @@ h3 {
 }
 
 .app-header__inner {
-  padding: 24px 0 20px;
+  padding: 10px 0;
   display: flex;
-  align-items: flex-start;
+  align-items: center;
   justify-content: space-between;
-  gap: 24px;
+  gap: 16px;
+}
+
+.app-header h1 {
+  margin: 0;
+  font-size: 20px;
+  line-height: 1.25;
 }
 
 .eyebrow,
@@ -132,7 +138,7 @@ h3 {
 }
 
 .app-shell {
-  margin-top: 22px;
+  margin-top: 12px;
   margin-bottom: 48px;
 }
 
@@ -146,16 +152,16 @@ h3 {
 .flow-tabs {
   display: grid;
   grid-template-columns: repeat(5, minmax(0, 1fr));
-  gap: 8px;
-  margin-bottom: 18px;
+  gap: 6px;
+  margin-bottom: 10px;
 }
 
 .flow-tab {
   position: relative;
-  min-height: 58px;
+  min-height: 42px;
   border: 1px solid var(--line);
   border-radius: 8px;
-  padding: 9px 12px;
+  padding: 6px 10px;
   background: #fff;
   color: var(--text);
   font-weight: 700;
@@ -203,7 +209,7 @@ h3 {
 }
 
 .status-card {
-  padding: 14px 16px;
+  padding: 8px 12px;
 }
 
 .status-card span {
@@ -215,8 +221,8 @@ h3 {
 
 .status-card strong {
   display: block;
-  margin-top: 4px;
-  font-size: 22px;
+  margin-top: 2px;
+  font-size: 18px;
   line-height: 1.25;
 }
 
@@ -233,7 +239,7 @@ h3 {
 }
 
 .panel {
-  padding: 20px;
+  padding: 14px;
 }
 
 .panel + .panel,
@@ -247,7 +253,7 @@ h3 {
   justify-content: space-between;
   align-items: flex-start;
   gap: 16px;
-  margin-bottom: 18px;
+  margin-bottom: 12px;
 }
 
 .field-grid,
@@ -365,10 +371,10 @@ button:focus-visible {
 }
 
 .instruction-result {
-  margin-top: 16px;
+  margin-top: 10px;
   border: 1px solid #cbd8d1;
   border-radius: 8px;
-  padding: 14px;
+  padding: 10px;
   display: flex;
   justify-content: space-between;
   gap: 14px;
@@ -400,14 +406,14 @@ button:focus-visible {
 
 .instruction-list {
   display: grid;
-  gap: 10px;
-  margin-top: 14px;
+  gap: 6px;
+  margin-top: 10px;
 }
 
 .instruction-card {
   border: 1px solid var(--line);
-  border-radius: 8px;
-  padding: 12px;
+  border-radius: 6px;
+  padding: 8px 10px;
   background: #fff;
 }
 
@@ -502,14 +508,14 @@ button:focus-visible {
 
 .candidate-list {
   display: grid;
-  gap: 12px;
-  margin-top: 14px;
+  gap: 8px;
+  margin-top: 10px;
 }
 
 .candidate-card {
   border: 1px solid var(--line);
-  border-radius: 8px;
-  padding: 14px;
+  border-radius: 6px;
+  padding: 10px;
   background: #fff;
 }
 

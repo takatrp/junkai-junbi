@@ -1,4 +1,4 @@
-const instructionData = {
+let instructionData = {
   corporate: {
     pdf: "./所長の指示事項 法人.pdf",
     label: "法人",
@@ -99,6 +99,144 @@ const instructionData = {
   }
 };
 
+instructionData = {
+  corporate: {
+    pdf: "./所長の指示事項 法人.pdf",
+    label: "法人",
+    auditMonths: {
+      1: [
+        instructionLine("期首 1か月目", "TPS1000仕訳読込、期首振替仕訳の確認（締め後決算整理仕訳・繰越利益剰余金等）しない", "past"),
+        instructionLine("期首 1か月目", "月次定型仕訳の金額変更（概算減価償却費・賞与引当金等） する 決算月", "present")
+      ],
+      2: [
+        instructionLine("期首 2か月目", "「決算報告書綴」の交付 する 決算月", "past"),
+        instructionLine("期首 2か月目", "株主総会議事録、取締役会議事録、役員変更等の登記関係の確認・指導する 決算月", "present"),
+        instructionLine("期首 2か月目", "「定期同額給与」「事前確定届出給与」の意向確認・指導 する  1か月後", "present")
+      ],
+      3: [
+        instructionLine("期首 3か月目", "【継続MAS】第1四半期業績検討会の開催 しない", "present"),
+        instructionLine("期首 3か月目", "業況により消費税の中間申告（1回目）について仮決算による方法を検討しない", "future")
+      ],
+      4: [
+        instructionLine("期首 4か月目", "消費税中間納付書（１回目）による納付指導 する 決算月", "present")
+      ],
+      5: [
+        instructionLine("期首 5か月目", "中間決算に向けての予実対比 する 決算月", "future")
+      ],
+      6: [
+        instructionLine("期首 6か月目", "【継続MAS】第2四半期業績検討会の開催 する 決算月", "present"),
+        instructionLine("期首 6か月目", "中間申告（予定申告)通知の有無および業況による仮決算の必要性の確認する 決算月", "future"),
+        instructionLine("期首 6か月目", "仮決算による中間申告の場合の本決算に準ずる処理の説明 する 決算月", "future")
+      ],
+      7: [
+        instructionLine("期首 7か月目", "法人(地方)税の中間（予定）納付書・消費税中間納付書（2回目）による納付指導する 決算月", "present")
+      ],
+      9: [
+        instructionLine("期首 9か月目", "【継続MAS】第3四半期業績検討会の開催 する 決算月", "future"),
+        instructionLine("期首 9か月目", "業況により消費税の中間申告（3回目）について仮決算による方法を検討しない", "future")
+      ],
+      10: [
+        instructionLine("期首10か月目", "【継続MAS】決算事前検討会の開催（利益・納税の予測、黒字・赤字対策）する 決算月", "future"),
+        instructionLine("期首10か月目", "【継続MAS】短期経営計画策定会の開催 する 決算月", "future"),
+        instructionLine("期首10か月目", "消費税中間納付書（3回目）による納付指導 する 決算月", "present")
+      ],
+      11: [
+        instructionLine("期首11か月目", "消費税課税ﾎﾟｼﾞｼｮﾝの検討（本則or簡易／免税or課税）※設備投資計画などに注意する 決算月", "future"),
+        instructionLine("期首11か月目", "各種届出書の確認（消費税の簡易・本則、課税事業者選択・減価償却方法等）する 決算月", "future"),
+        instructionLine("期首11か月目", "次年度会計用品の準備 する 決算月", "future")
+      ],
+      12: [
+        instructionLine("期首12か月目", "【継続MAS】短期経営計画の策定・自計化ｼｽﾃﾑへの予算登録 する 決算月", "future"),
+        instructionLine("期首12か月目", "今期決算の概算納税額と翌期の概算予定納税額の説明 する 決算月", "future")
+      ]
+    },
+    calendarMonths: {
+      5: [
+        instructionLine("5月分", "源泉所得税（納期特例）の納付書作成指導、納付依頼（7/10期限） する 決算月", "present")
+      ],
+      10: [
+        instructionLine("10月分", "源泉所得税（納期特例）の納付準備・指導（年末調整による超過税額、報酬料金に注意）する 決算月", "present"),
+        instructionLine("10月分", "＜年末調整＞準備のお知らせ・ｽｹｼﾞｭｰﾙ確認 する 決算月", "present")
+      ],
+      11: [
+        instructionLine("11月分", "＜年末調整＞資料の回収、過納額の還付手続きの是非確認 する 決算月", "present"),
+        instructionLine("11月分", "償却資産税申告の準備・資産異動の確認 する 決算月", "present"),
+        instructionLine("11月分", "本年分　所得税「確定申告の準備のお願い」の提供 する 決算月", "future")
+      ],
+      12: [
+        instructionLine("12月分", "源泉所得税（納期特例）の納付指導（1/20期限） する 決算月", "present"),
+        instructionLine("12月分", "関係する税制改正大綱の情報提供 する 決算月", "future")
+      ]
+    },
+    recurring: [
+      instructionLine("毎月", "「仕訳に関する指摘事項」のﾌｧｲﾘﾝｸﾞ指導（日々の業績数値の精度を高める！）しない", "present"),
+      instructionLine("毎月", "変動PL等管理会計ﾒﾆｭｰを見て社長と対話（限界利益率・予実対比・ﾋｱﾘﾝｸﾞ）しない", "present"),
+      instructionLine("毎月", "社長のｽﾏﾎの「それ、売上に直すといくらですか？」の限界利益率を更新しない", "present"),
+      instructionLine("毎月", "翌月の監査日を決定→ｽｹｼﾞｭｰﾗに登録 しない", "present")
+    ]
+  },
+  individual: {
+    pdf: "./所長の指示事項 個人.pdf",
+    label: "個人",
+    auditMonths: {},
+    calendarMonths: {
+      1: [
+        instructionLine("1月分", "TPS2000仕訳読込、期首振替仕訳の確認（締め後決算整理仕訳・事業主勘定の元入金等）する 決算月", "past"),
+        instructionLine("1月分", "月次定型仕訳の変更確認（概算減価償却費・賞与引当金等） する 決算月", "present"),
+        instructionLine("1月分", "法定調書・給与支払報告書・償却資産申告書提出 する 決算月", "present")
+      ],
+      3: [
+        instructionLine("3月分", "【継続MAS】第1四半期業績検討会の開催 する 決算月", "present"),
+        instructionLine("3月分", "業況により消費税の中間申告（1回目）について仮決算による方法を検討する 決算月", "future")
+      ],
+      5: [
+        instructionLine("5月分", "源泉所得税（納期特例）の納付書作成指導、納付依頼（7/10期限） する 決算月", "present"),
+        instructionLine("5月分", "所得税減額申請の必要性を検討（必要な場合は準備） する 決算月", "future"),
+        instructionLine("5月分", "家事関連費の按分の確認 する 決算月", "present")
+      ],
+      6: [
+        instructionLine("6月分", "【継続MAS】第2四半期業績検討会の開催 する 決算月", "present"),
+        instructionLine("6月分", "消費税予定申告の確認・関与先への税額の報告 する 決算月", "future")
+      ],
+      7: [
+        instructionLine("7月分", "所得税予定納税第1期（7/31）の税額を報告 する 決算月", "present")
+      ],
+      8: [
+        instructionLine("8月分", "電子帳簿保存法の適用の要件確認（申請は備付開始日の3か月前迄） する 決算月", "present")
+      ],
+      9: [
+        instructionLine("9月分", "【継続MAS】第3四半期業績検討会の開催 する 決算月", "future"),
+        instructionLine("9月分", "所得税減額申請の必要性を検討（必要な場合は準備） する 決算月", "future")
+      ],
+      10: [
+        instructionLine("10月分", "【継続MAS】決算事前検討会の開催（利益・納税の予測、黒字・赤字対策）する 決算月", "future"),
+        instructionLine("10月分", "【継続MAS】短期経営計画策定会の開催 する 決算月", "future"),
+        instructionLine("10月分", "源泉所得税（納期特例）の納付準備・指導（年末調整による超過税額、報酬料金に注意）する 決算月", "present"),
+        instructionLine("10月分", "＜年末調整＞準備のお知らせ・ｽｹｼﾞｭｰﾙ確認 する 決算月", "present")
+      ],
+      11: [
+        instructionLine("11月分", "所得税予定納税第2期（11/30）の税額を報告 する 決算月", "present"),
+        instructionLine("11月分", "源泉所得税（納期特例）の納付指導（1/20期限） する 決算月", "present"),
+        instructionLine("11月分", "＜年末調整＞資料の回収、過納額の還付手続きの是非確認 する 決算月", "present"),
+        instructionLine("11月分", "償却資産税申告の準備・資産異動の確認 する 決算月", "present"),
+        instructionLine("11月分", "次年度会計用品の準備 する 決算月", "future"),
+        instructionLine("11月分", "各種届出書の確認（消費税の簡易・本則、課税事業者選択、減価償却方法等）する 決算月", "future"),
+        instructionLine("11月分", "消費税課税ﾎﾟｼﾞｼｮﾝの検討（本則or簡易／免税or課税）※設備投資計画などに注意する 決算月", "future")
+      ],
+      12: [
+        instructionLine("12月分", "【継続MAS】短期経営計画の策定、自計化ｼｽﾃﾑへの予算の登録 する 決算月", "future"),
+        instructionLine("12月分", "今期決算の概算納税額と翌期の概算予定納税額の説明 する 決算月", "future"),
+        instructionLine("12月分", "関係する税制改正大綱の情報提供 する 決算月", "future")
+      ]
+    },
+    recurring: [
+      instructionLine("毎月", "変動PL等管理会計ﾒﾆｭｰを見て事業主と対話（限界利益率・予実対比・ﾋｱﾘﾝｸﾞ）しない", "present"),
+      instructionLine("毎月", "社長のｽﾏﾎの「それ、売上げに直すといくらですか？」の限界利益率を更新しない", "present"),
+      instructionLine("毎月", "翌月の監査日を決定→ｽｹｼﾞｭｰﾗに登録 しない", "present")
+    ]
+  }
+};
+
 const baseCandidates = {
   past: [
     candidate("前回宿題の進捗確認", "前回決めたことが実行済み・途中・未着手のどれかを確認します。", "基本"),
@@ -144,6 +282,17 @@ const $$ = (selector, root = document) => Array.from(root.querySelectorAll(selec
 
 function instruction(title, detail, category) {
   return { title, detail, category, source: "所長指示" };
+}
+
+function instructionLine(scope, text, category) {
+  return {
+    title: `${scope} ${text}`,
+    detail: "",
+    category,
+    source: "所長指示",
+    scope,
+    text
+  };
 }
 
 function candidate(title, detail, source) {
@@ -247,8 +396,13 @@ function auditMonthIndex() {
 function currentInstructions() {
   const entity = $("#entityType").value;
   const index = auditMonthIndex();
-  if (!index) return [];
-  return instructionData[entity].months[index] || [];
+  const visit = Number($("#visitMonth").value);
+  const data = instructionData[entity];
+  return [
+    ...(index ? data.auditMonths[index] || [] : []),
+    ...(visit ? data.calendarMonths[visit] || [] : []),
+    ...(data.recurring || [])
+  ];
 }
 
 function renderAuditPreparation() {
@@ -260,12 +414,12 @@ function renderAuditPreparation() {
   $("#pdfLink").href = data.pdf;
   $("#pdfFrame").src = `${data.pdf}#page=1&zoom=page-width`;
 
-  if (!index) {
+  if (!index && !Number($("#visitMonth").value)) {
     $("#auditMonthTitle").textContent = "決算月と訪問月を選択してください";
-    $("#auditMonthDescription").textContent = "訪問月が決算月の翌月なら1か月目、決算月なら12か月目です。";
+    $("#auditMonthDescription").textContent = "毎月項目は常時表示、○月分は訪問月、期首○か月目は決算月から判定します。";
   } else {
-    $("#auditMonthTitle").textContent = `${data.label}・巡回${index}か月目の所長指示`;
-    $("#auditMonthDescription").textContent = `${$("#fiscalMonth").value}月決算、${$("#visitMonth").value}月訪問として自動判定しています。`;
+    $("#auditMonthTitle").textContent = `${data.label}・所長指示事項`;
+    $("#auditMonthDescription").textContent = `毎月項目＋${$("#visitMonth").value || "-"}月分${index ? `＋期首${index}か月目` : ""}を表示しています。`;
   }
 
   $("#instructionList").innerHTML = instructions.length
@@ -273,9 +427,9 @@ function renderAuditPreparation() {
         <article class="instruction-card">
           <header>
             <strong>${escapeHtml(item.title)}</strong>
-            <span class="source-pill">${escapeHtml(item.source)}</span>
+            <span class="source-pill">${escapeHtml(item.scope || item.source)}</span>
           </header>
-          <p>${escapeHtml(item.detail)}</p>
+          ${item.detail ? `<p>${escapeHtml(item.detail)}</p>` : ""}
         </article>
       `).join("")
     : `<article class="instruction-card"><strong>該当指示なし</strong><p>PDF原本を確認し、必要な内容を面談メモへ追加してください。</p></article>`;
@@ -314,7 +468,7 @@ function createCandidateCard(category, item, id, previous, index) {
   node.dataset.detail = item.detail;
   node.dataset.source = item.source;
   title.textContent = item.title;
-  source.textContent = `${item.source}：${item.detail}`;
+  source.textContent = item.detail ? `${item.source}：${item.detail}` : item.source;
   textarea.value = previous?.note || "";
   const hasPrevious = Boolean(previous);
   checkbox.checked = hasPrevious ? Boolean(previous.checked) : Boolean((item.source === "所長指示" || item.source === "月次データ") && index < 5);
@@ -391,7 +545,7 @@ function createClientSummary(state, grouped) {
     "本日の面談テーマ",
     ...agenda.sections.flatMap((section) => [
       `【${section.heading}】`,
-      ...section.items.map((item) => `・${item.title}\n  ${item.detail}`)
+      ...section.items.map((item) => item.detail ? `・${item.title}\n  ${item.detail}` : `・${item.title}`)
     ]),
     "",
     "次回までの確認事項",
@@ -463,7 +617,7 @@ function renderClientAgenda(state, grouped) {
               ${section.items.map((item) => `
                 <li>
                   <strong>${escapeHtml(item.title)}</strong>
-                  <span>${escapeHtml(item.detail)}</span>
+                  ${item.detail ? `<span>${escapeHtml(item.detail)}</span>` : ""}
                 </li>
               `).join("")}
             </ol>
@@ -799,7 +953,7 @@ function createDetailedSummary(state, grouped) {
     `PDF：${instructionData[state.entityType].pdf}`,
     "",
     "【所長指示 該当項目】",
-    ...(instructions.length ? instructions.map((item) => `・${item.title}：${item.detail}`) : ["・該当月の指示事項をPDF原本で確認してください。"]),
+    ...(instructions.length ? instructions.map((item) => item.detail ? `・${item.title}：${item.detail}` : `・${item.title}`) : ["・該当月の指示事項をPDF原本で確認してください。"]),
     "",
     "【月次データ サジェスト】",
     ...(monthlyAnalysis.suggestions.length ? monthlyAnalysis.suggestions.map((item) => `・${item.title}：${item.detail}`) : ["・月次CSVを取り込むと、数値から伝えるべきポイントを表示します。"]),
@@ -830,7 +984,7 @@ function detailedTopicBlock(category, topics, manual) {
   }
   topics.forEach((topic) => {
     lines.push(`・${topic.title}（${topic.source}）`);
-    lines.push(`  確認観点：${topic.detail}`);
+    if (topic.detail) lines.push(`  確認観点：${topic.detail}`);
     lines.push(`  面談メモ：${topic.note || "未入力"}`);
   });
   splitLines(manual).forEach((line) => lines.push(`・追加メモ：${line}`));

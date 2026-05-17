@@ -6,9 +6,9 @@
   --line: #d7e2dc;
   --text: #17231d;
   --muted: #65766e;
-  --primary: #176b54;
-  --primary-dark: #0f4d3e;
-  --accent: #9b642f;
+  --primary: #578899;
+  --primary-dark: #426f7d;
+  --accent: #578899;
   --past: #657390;
   --present: #1d7a64;
   --future: #a06735;
@@ -668,7 +668,7 @@ button:focus-visible {
 
 .agenda-hero {
   padding: 22px 24px;
-  background: #6f7472;
+  background: var(--primary);
   color: #fff;
 }
 
@@ -711,7 +711,7 @@ button:focus-visible {
   margin: -18px -22px 12px;
   padding: 10px 16px;
   border-bottom: 0;
-  background: #6f7472;
+  background: var(--primary);
   color: #fff;
   font-size: 15px;
 }

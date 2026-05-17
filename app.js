@@ -248,16 +248,22 @@ const categoryHeadings = {
 const draftKey = "monthlyAuditMeetingDraftV1";
 const recordKey = "monthlyAuditMeetingRecordsV1";
 const formIds = [
-  "clientName", "fiscalMonth", "visitMonth", "visitDate",
+  "clientName", "inventoryFlag", "fiscalMonth", "visitMonth", "visitDate",
   "participants", "meetingAim",
   "pastManual", "presentManual", "futureManual",
   "decisions", "homework", "reflection"
 ];
 let restoredCandidates = {};
-let monthlyAnalysis = {
-  balance: null,
-  profit: null,
-  suggestions: []
+let monthlyAnalysis = emptyMonthlyAnalysis();
+
+const ALERT_THRESHOLDS = {
+  laborDistortPt: 3,
+  fixedCostUpRate: 110,
+  planRateLow: 90,
+  marginalDropPt: 2,
+  profitSurgeRate: 120,
+  ordinaryLossMonths: 3,
+  outlierMultiple: 10
 };
 
 // ============================================================
@@ -265,6 +271,26 @@ let monthlyAnalysis = {
 // ============================================================
 const $ = (selector, root = document) => root.querySelector(selector);
 const $$ = (selector, root = document) => Array.from(root.querySelectorAll(selector));
+
+function emptyMonthlyAnalysis() {
+  return {
+    balance: null,
+    profitPlan: null,
+    profitTrend: null,
+    profit: null,
+    suggestions: []
+  };
+}
+
+function normalizeMonthlyAnalysis(value) {
+  const normalized = { ...emptyMonthlyAnalysis(), ...(value || {}) };
+  normalized.suggestions = Array.isArray(normalized.suggestions) ? normalized.suggestions : [];
+  return normalized;
+}
+
+function inventoryMode() {
+  return $("#inventoryFlag")?.value || "with";
+}
 
 // ============================================================
 // データ生成ヘルパー
@@ -423,7 +449,8 @@ function bindEvents() {
   $("#printMonthlyReport").addEventListener("click", printMonthlyReport);
   $("#copyMonthlyReport").addEventListener("click", () => copyText("#monthlyReportText", "#copyMonthlyReport", "レポートコピー"));
   $("#balanceCsvInput").addEventListener("change", (event) => handleCsvImport("balance", event.target.files[0]));
-  $("#profitCsvInput").addEventListener("change", (event) => handleCsvImport("profit", event.target.files[0]));
+  $("#profitPlanCsvInput").addEventListener("change", (event) => handleCsvImport("profitPlan", event.target.files[0]));
+  $("#profitTrendCsvInput").addEventListener("change", (event) => handleCsvImport("profitTrend", event.target.files[0]));
   $("#loadSample").addEventListener("click", loadSample);
   $("#clearDraft").addEventListener("click", clearDraft);
   $("#exportJson").addEventListener("click", exportJson);
@@ -553,7 +580,10 @@ function renderCandidates() {
     // category未設定のものは "present" 扱い（後方互換）
     const dataCandidates = monthlyAnalysis.suggestions
       .filter((item) => (item.category || "present") === category)
-      .map((item) => candidate(item.title, item.detail, "月次データ", { group: "月次データの注目点" }));
+      .map((item) => candidate(item.title, item.detail, "月次データ", {
+        group: item.group || (item.importance === "must" ? "重要アラート" : "月次データの注目点"),
+        importance: item.importance || null
+      }));
 
     const candidates = [...dataCandidates, ...baseCandidates[category]];
     const container = $(`#${category}Candidates`);
@@ -895,7 +925,7 @@ function restoreDraft() {
   try {
     const draft = JSON.parse(raw);
     restoredCandidates = draft.candidates || {};
-    if (draft.monthlyAnalysis) monthlyAnalysis = draft.monthlyAnalysis;
+    if (draft.monthlyAnalysis) monthlyAnalysis = normalizeMonthlyAnalysis(draft.monthlyAnalysis);
     Object.entries(draft.form || {}).forEach(([id, value]) => {
       if (id === "entityType") {
         setEntityType(value);
@@ -956,7 +986,7 @@ async function handleJsonImport(event) {
 function restoreJsonPayload(payload) {
   restoredCandidates = payload.candidates || {};
   $$(".candidate-card").forEach((card) => card.remove());
-  monthlyAnalysis = payload.monthlyAnalysis || { balance: null, profit: null, suggestions: [] };
+  monthlyAnalysis = normalizeMonthlyAnalysis(payload.monthlyAnalysis);
   Object.entries(payload.form || {}).forEach(([id, value]) => {
     if (id === "entityType") {
       setEntityType(value);
@@ -1113,11 +1143,12 @@ function clearDraft() {
   formIds.forEach((id) => {
     $(`#${id}`).value = "";
   });
+  $("#inventoryFlag").value = "with";
   setEntityType("corporate");
   setDefaultDate();
   localStorage.removeItem(draftKey);
   restoredCandidates = {};
-  monthlyAnalysis = { balance: null, profit: null, suggestions: [] };
+  monthlyAnalysis = emptyMonthlyAnalysis();
   renderAll();
 }
 
@@ -1126,7 +1157,7 @@ function clearDraft() {
 // ============================================================
 function toNumber(value) {
   if (value === null || value === undefined || value === "") return null;
-  const normalized = String(value).replace(/,/g, "").replace(/△/g, "-").trim();
+  const normalized = String(value).replace(/,/g, "").replace(/%/g, "").replace(/△/g, "-").trim();
   const parsed = Number(normalized);
   return Number.isFinite(parsed) ? parsed : null;
 }
@@ -1178,14 +1209,48 @@ async function handleCsvImport(kind, file) {
   try {
     const text = await readCsvText(file);
     const rows = parseCsv(text).filter((row) => row.some((cell) => String(cell).trim()));
-    monthlyAnalysis[kind] = kind === "balance"
-      ? analyzeBalanceCsv(rows, file.name)
-      : analyzeProfitCsv(rows, file.name);
+    const detectedKind = detectCsvKind(rows);
+    const acceptedKinds = {
+      balance: ["balance"],
+      profitPlan: ["profitPlan", "profitLegacy"],
+      profitTrend: ["profitTrend"]
+    };
+    if (!detectedKind || !acceptedKinds[kind].includes(detectedKind)) {
+      throw new Error(`${csvKindLabel(kind)}として読み込めるCSVではありません。勘定科目残高推移表・利益管理表（365日変動損益計算書）・変動損益計算書推移表の欄を確認してください。`);
+    }
+    if (detectedKind === "balance") {
+      monthlyAnalysis.balance = analyzeBalanceCsv(rows, file.name);
+    } else if (detectedKind === "profitPlan") {
+      monthlyAnalysis.profitPlan = analyzeProfitPlan(rows, file.name);
+    } else if (detectedKind === "profitTrend") {
+      monthlyAnalysis.profitTrend = analyzeProfitTrend(rows, file.name);
+    } else if (detectedKind === "profitLegacy") {
+      monthlyAnalysis.profit = analyzeProfitCsv(rows, file.name);
+    }
     renderAll();
     saveDraft();
   } catch (error) {
     window.alert(`CSVを読み込めませんでした: ${error.message}`);
   }
+}
+
+function detectCsvKind(rows) {
+  const header = (rows[0] || []).map((cell) => String(cell || "").trim());
+  const h0 = header[0] || "";
+  const h1 = header[1] || "";
+  if (h0 === "勘定科目コード") return "balance";
+  if (h0 === "項目" && /^\d{4}\/\d{2}$/.test(h1)) return "profitTrend";
+  if (h0 === "変動項目名" && header.some((cell) => cell === "当期(A)" || cell === "当期計画(C)")) return "profitPlan";
+  if (h0 === "変動項目名" && header.includes("当月実績")) return "profitLegacy";
+  return null;
+}
+
+function csvKindLabel(kind) {
+  return ({
+    balance: "勘定科目残高推移表",
+    profitPlan: "利益管理表（365日変動損益計算書）",
+    profitTrend: "変動損益計算書推移表"
+  })[kind] || "CSV";
 }
 
 async function readCsvText(file) {
@@ -1235,6 +1300,226 @@ function parseCsv(text) {
   row.push(field);
   rows.push(row);
   return rows;
+}
+
+// ============================================================
+// 利益管理表・変動損益推移表CSV分析
+// ============================================================
+function analyzeProfitTrend(rows, fileName) {
+  const header = rows[0] || [];
+  const monthCols = [];
+  header.forEach((cell, index) => {
+    if (/^\d{4}\/\d{2}$/.test(String(cell).trim())) monthCols.push(index);
+  });
+  const months = monthCols.map((index) => String(header[index]).trim());
+  const series = {};
+  const share = {};
+  rows.slice(1).forEach((row) => {
+    const name = String(row[0] || "").trim();
+    if (!name) return;
+    series[name] = monthCols.map((index) => toNumber(row[index]));
+    share[name] = monthCols.map((index) => toNumber(row[index + 1]));
+  });
+  return { kind: "profitTrend", fileName, months, series, share };
+}
+
+function analyzeProfitPlan(rows, fileName) {
+  const items = {};
+  rows.slice(1).forEach((row) => {
+    const name = String(row[0] || "").trim();
+    if (!name) return;
+    items[name] = {
+      actual: toNumber(row[1]),
+      share: toNumber(row[2]),
+      plan: toNumber(row[3]),
+      planShare: toNumber(row[4]),
+      planDiff: toNumber(row[5]),
+      planRate: toNumber(row[6]),
+      lastYear: toNumber(row[7]),
+      lyShare: toNumber(row[8]),
+      lyDiff: toNumber(row[9]),
+      yoyRate: toNumber(row[10])
+    };
+  });
+  return { kind: "profitPlan", fileName, items };
+}
+
+function buildAlerts(trend, plan, invMode) {
+  const alerts = [];
+  const items = plan?.items || null;
+  const get = (name) => (items && items[name]) || null;
+  const sales = get("純売上高");
+  const marginal = get("限界利益");
+  const labor = get("人件費");
+  const fixed = get("固定費合計");
+  const ordinary = get("経常利益");
+
+  if (trend) {
+    const outliers = detectOutlierMonths(trend);
+    if (outliers.length) {
+      alerts.push({
+        title: "データ点検：数値が異常な月があります",
+        detail: `${outliers.join("、")} の数値が他の月から大きく外れています。月次データの入力ミスがないか、巡回監査の前に必ず確認してください。`,
+        category: "present",
+        group: "データ確認",
+        importance: "must"
+      });
+    }
+  }
+
+  if (labor && marginal && marginal.actual > 0 && marginal.plan > 0 && labor.actual != null && labor.plan != null) {
+    const actualRate = labor.actual / marginal.actual * 100;
+    const planRate = labor.plan / marginal.plan * 100;
+    const gap = actualRate - planRate;
+    if (gap >= ALERT_THRESHOLDS.laborDistortPt) {
+      alerts.push({
+        title: "労働分配率が計画を上回っています",
+        detail: `累計の労働分配率は${roundOne(actualRate)}%（計画${roundOne(planRate)}%、+${roundOne(gap)}pt）。人件費の増加に限界利益の伸びが追いついていません。価格転嫁の必要性や、一時的な増加かを確認します。`,
+        category: "present",
+        group: "収益構造アラート",
+        importance: "recommend"
+      });
+    }
+  }
+
+  if (fixed && fixed.yoyRate != null && fixed.yoyRate >= ALERT_THRESHOLDS.fixedCostUpRate) {
+    let bep = "";
+    if (marginal && sales && marginal.actual > 0 && sales.actual > 0) {
+      const marginalRate = marginal.actual / sales.actual;
+      bep = `これにより損益分岐点売上高は約${formatMoney(fixed.actual / marginalRate)}に上昇しています。`;
+    }
+    alerts.push({
+      title: "固定費が前年から増えています",
+      detail: `固定費合計は${formatMoney(fixed.actual)}、前年比${formatRate(fixed.yoyRate)}。${bep}増えた固定費が「攻めの投資」か、回収にいくらの売上が必要かを確認します。`,
+      category: "present",
+      group: "収益構造アラート",
+      importance: "recommend"
+    });
+  }
+
+  if (sales && marginal && sales.yoyRate != null && sales.yoyRate < 100 && marginal.actual > 0 && marginal.lastYear != null && marginal.actual > marginal.lastYear) {
+    alerts.push({
+      title: "売上減でも限界利益は改善しています",
+      detail: `売上は前年比${formatRate(sales.yoyRate)}と減少していますが、限界利益は前年${formatMoney(marginal.lastYear)}から当期${formatMoney(marginal.actual)}に増えています。原価低減や不採算取引の見直しが効いた可能性を確認します。`,
+      category: "past",
+      group: "改善ポイント",
+      importance: "recommend"
+    });
+  }
+
+  if (ordinary && ordinary.plan != null && ordinary.actual != null) {
+    const behind = ordinary.planRate != null
+      ? ordinary.planRate < ALERT_THRESHOLDS.planRateLow
+      : ordinary.actual < ordinary.plan;
+    if (behind) {
+      let landing = "";
+      const index = auditMonthIndex();
+      if (index && index > 0) {
+        const estimatedActual = ordinary.actual / index * 12;
+        const estimatedPlan = ordinary.plan / index * 12;
+        landing = ` 単純按分での期末着地は約${formatMoney(estimatedActual)}（通期換算の計画 約${formatMoney(estimatedPlan)}、差 ${formatSignedMoney(estimatedActual - estimatedPlan)}）。`;
+      }
+      alerts.push({
+        title: "累計経常利益が計画を下回っています",
+        detail: `累計経常利益は${formatMoney(ordinary.actual)}、計画${formatMoney(ordinary.plan)}（計画比${formatRate(ordinary.planRate)}）。${landing}残り期間でどう計画に近づけるか、売上増か費用削減かを確認します。`,
+        category: "future",
+        group: "着地見通しアラート",
+        importance: "must"
+      });
+    }
+  }
+
+  if (marginal && sales && marginal.lastYear != null && sales.actual > 0 && sales.lastYear != null && sales.lastYear > 0) {
+    const nowRate = marginal.actual / sales.actual * 100;
+    const lastYearRate = marginal.lastYear / sales.lastYear * 100;
+    const drop = lastYearRate - nowRate;
+    if (drop >= ALERT_THRESHOLDS.marginalDropPt) {
+      const culprit = findVariableCostCulprit(items, sales);
+      const cause = culprit
+        ? `主因は${culprit.name}（売上比 ${roundOne(culprit.lyShare)}%→${roundOne(culprit.nowShare)}%）です。`
+        : "";
+      const guide = invMode === "without"
+        ? "受注単価か、外注・制作費の条件を確認します。"
+        : "値引きの増加か、仕入・外注単価の上昇かを切り分けて確認します。";
+      alerts.push({
+        title: "限界利益率が前年より悪化しています",
+        detail: `限界利益率は前年${roundOne(lastYearRate)}%から当期${roundOne(nowRate)}%（-${roundOne(drop)}pt）。${cause}${guide}`,
+        category: "past",
+        group: "収益構造アラート",
+        importance: "recommend"
+      });
+    }
+  }
+
+  if (ordinary && ordinary.yoyRate != null && ordinary.yoyRate >= ALERT_THRESHOLDS.profitSurgeRate && ordinary.actual > 0) {
+    alerts.push({
+      title: "経常利益が前年から大きく伸びています",
+      detail: `累計経常利益は${formatMoney(ordinary.actual)}、前年比${formatRate(ordinary.yoyRate)}。納税額の増加が見込まれます。納税資金の準備と、決算前にできる投資（設備・人材・修繕）の検討を早めに進めます。`,
+      category: "future",
+      group: "決算・納税アラート",
+      importance: "recommend"
+    });
+  }
+
+  if (trend) {
+    const run = countOrdinaryLossRun(trend);
+    if (run.months >= ALERT_THRESHOLDS.ordinaryLossMonths) {
+      const guide = invMode === "without"
+        ? "受注ごとの採算（受注単価と直接費の関係）と、受注条件の見直しを確認します。"
+        : "棚卸の計上漏れがないかをまず確認し、その上で損益分岐点まで売上をいくら戻す必要があるかを確認します。";
+      alerts.push({
+        title: `経常赤字が${run.months}か月続いています`,
+        detail: `直近${run.months}か月連続で経常損失です。「売れていない」だけでなく「固定費が重い」状態の可能性があります。${guide}`,
+        category: "present",
+        group: "重要アラート",
+        importance: "must"
+      });
+    }
+  }
+
+  return alerts;
+}
+
+function detectOutlierMonths(trend) {
+  const sales = trend.series["純売上高"];
+  if (!sales) return [];
+  const valid = sales
+    .map((value, index) => ({ value, index }))
+    .filter((item) => item.value != null && item.value !== 0);
+  if (valid.length < 4) return [];
+  const sorted = valid.map((item) => Math.abs(item.value)).sort((a, b) => a - b);
+  const median = sorted[Math.floor(sorted.length / 2)];
+  if (!median) return [];
+  return valid
+    .filter((item) => Math.abs(item.value) > median * ALERT_THRESHOLDS.outlierMultiple)
+    .map((item) => trend.months[item.index]);
+}
+
+function countOrdinaryLossRun(trend) {
+  const ordinary = trend.series["経常利益"] || [];
+  let months = 0;
+  for (let index = ordinary.length - 1; index >= 0; index -= 1) {
+    const value = ordinary[index];
+    if (value == null) break;
+    if (value < 0) months += 1;
+    else break;
+  }
+  return { months };
+}
+
+function findVariableCostCulprit(items) {
+  if (!items) return null;
+  const names = ["仕入高", "外注加工費", "他の変動費"];
+  let best = null;
+  names.forEach((name) => {
+    const item = items[name];
+    if (!item || item.share == null || item.lyShare == null) return;
+    const delta = item.share - item.lyShare;
+    if (delta > 0 && (!best || delta > best.delta)) {
+      best = { name, delta, nowShare: item.share, lyShare: item.lyShare };
+    }
+  });
+  return best;
 }
 
 // ============================================================
@@ -1412,11 +1697,13 @@ function analyzeBalanceCsv(rows, fileName) {
 // ============================================================
 function refreshMonthlySuggestions() {
   monthlyAnalysis.suggestions = [
+    ...buildAlerts(monthlyAnalysis.profitTrend, monthlyAnalysis.profitPlan, inventoryMode()),
     ...(monthlyAnalysis.profit?.suggestions || []),
     ...(monthlyAnalysis.balance?.suggestions || [])
   ];
   renderMonthlySuggestionList();
-  $("#profitImportStatus").textContent = monthlyAnalysis.profit ? monthlyAnalysis.profit.fileName : "未取込";
+  $("#profitPlanImportStatus").textContent = monthlyAnalysis.profitPlan?.fileName || (monthlyAnalysis.profit ? `${monthlyAnalysis.profit.fileName}（旧形式）` : "未取込");
+  $("#profitTrendImportStatus").textContent = monthlyAnalysis.profitTrend ? monthlyAnalysis.profitTrend.fileName : "未取込";
   $("#balanceImportStatus").textContent = monthlyAnalysis.balance ? monthlyAnalysis.balance.fileName : "未取込";
 }
 
@@ -1430,6 +1717,7 @@ function renderMonthlySuggestionList() {
     <article class="monthly-suggestion-card">
       <strong>${escapeHtml(item.title)}</strong>
       <span class="source-pill">${escapeHtml(categoryLabels[item.category || "present"])}</span>
+      ${item.importance ? `<span class="source-pill">${item.importance === "must" ? "重要" : "確認推奨"}</span>` : ""}
       <p>${escapeHtml(item.detail)}</p>
     </article>
   `).join("");
@@ -1445,7 +1733,7 @@ function renderMonthlyReport() {
 }
 
 function createMonthlyReportText() {
-  if (!monthlyAnalysis.profit && !monthlyAnalysis.balance) {
+  if (!hasMonthlyData()) {
     return "CSVを取り込むと、月次レポートを自動作成します。";
   }
   return [
@@ -1460,7 +1748,7 @@ function createMonthlyReportText() {
 }
 
 function createMonthlyReportHtml() {
-  if (!monthlyAnalysis.profit && !monthlyAnalysis.balance) {
+  if (!hasMonthlyData()) {
     return `<p class="empty-note">CSVを取り込むと、月次レポートを自動作成します。</p>`;
   }
   return `
@@ -1498,12 +1786,26 @@ function createMonthlyReportHtml() {
 
 function reportMetricCards() {
   const cards = [];
-  const profit = monthlyAnalysis.profit;
+  const plan = monthlyAnalysis.profitPlan;
+  const legacyProfit = monthlyAnalysis.profit;
   const balance = monthlyAnalysis.balance;
-  const byName = profit ? Object.fromEntries(profit.metrics.map((item) => [item.name, item])) : {};
-  if (byName["純売上高"]) cards.push({ label: "当月売上", value: formatMoney(byName["純売上高"].monthActual), note: `計画比 ${formatRate(byName["純売上高"].monthPlanRate)} / 前年比 ${formatRate(byName["純売上高"].monthYoY)}` });
-  if (byName["限界利益"]) cards.push({ label: "限界利益率", value: formatPercent(byName["限界利益"].monthShare), note: `限界利益 ${formatMoney(byName["限界利益"].monthActual)}` });
-  if (byName["部門貢献利益"]) cards.push({ label: "部門貢献利益", value: formatMoney(byName["部門貢献利益"].monthActual), note: `計画比 ${formatRate(byName["部門貢献利益"].monthPlanRate)}` });
+  const items = plan?.items || {};
+  const sales = items["純売上高"];
+  const marginal = items["限界利益"];
+  const ordinary = items["経常利益"];
+  if (sales) cards.push({ label: "累計売上", value: formatMoney(sales.actual), note: `計画比 ${formatRate(sales.planRate)} / 前年比 ${formatRate(sales.yoyRate)}` });
+  if (marginal) {
+    const rate = sales?.actual ? marginal.actual / sales.actual * 100 : null;
+    cards.push({ label: "限界利益", value: formatMoney(marginal.actual), note: rate != null ? `限界利益率 ${roundOne(rate)}%` : `計画比 ${formatRate(marginal.planRate)}` });
+  }
+  if (ordinary) cards.push({ label: "経常利益", value: formatMoney(ordinary.actual), note: `計画比 ${formatRate(ordinary.planRate)} / 前年比 ${formatRate(ordinary.yoyRate)}` });
+
+  if (!cards.length && legacyProfit) {
+    const byName = Object.fromEntries(legacyProfit.metrics.map((item) => [item.name, item]));
+    if (byName["純売上高"]) cards.push({ label: "当月売上", value: formatMoney(byName["純売上高"].monthActual), note: `計画比 ${formatRate(byName["純売上高"].monthPlanRate)} / 前年比 ${formatRate(byName["純売上高"].monthYoY)}` });
+    if (byName["限界利益"]) cards.push({ label: "限界利益率", value: formatPercent(byName["限界利益"].monthShare), note: `限界利益 ${formatMoney(byName["限界利益"].monthActual)}` });
+    if (byName["部門貢献利益"]) cards.push({ label: "部門貢献利益", value: formatMoney(byName["部門貢献利益"].monthActual), note: `計画比 ${formatRate(byName["部門貢献利益"].monthPlanRate)}` });
+  }
   if (balance?.focus.cash) cards.push({ label: "現預金小計", value: formatMoney(balance.focus.cash.latest), note: `前月差 ${formatSignedMoney(balance.focus.cash.latest - balance.focus.cash.previous)}` });
   if (balance?.focus.ar) cards.push({ label: "売掛金", value: formatMoney(balance.focus.ar.latest), note: `前月差 ${formatSignedMoney(balance.focus.ar.latest - balance.focus.ar.previous)}` });
   if (balance?.focus.inventory) cards.push({ label: "棚卸資産計", value: formatMoney(balance.focus.inventory.latest), note: `前月差 ${formatSignedMoney(balance.focus.inventory.latest - balance.focus.inventory.previous)}` });
@@ -1512,6 +1814,10 @@ function reportMetricCards() {
 
 function reportMetricLines() {
   return reportMetricCards().map((card) => `・${card.label}：${card.value}（${card.note}）`);
+}
+
+function hasMonthlyData() {
+  return Boolean(monthlyAnalysis.profitPlan || monthlyAnalysis.profitTrend || monthlyAnalysis.profit || monthlyAnalysis.balance);
 }
 
 // ============================================================

@@ -136,14 +136,28 @@
           </div>
         </div>
 
-        <div class="file-grid">
+        <div class="data-option-grid">
+          <label>
+            <span>棚卸の有無（アラート判定）</span>
+            <select id="inventoryFlag">
+              <option value="with">棚卸あり（製造・小売・卸など）</option>
+              <option value="without">棚卸なし（イベント・サービス業など）</option>
+            </select>
+          </label>
+        </div>
+
+        <div class="file-grid file-grid--three">
           <label class="file-field">
             <span>勘定科目残高推移表 CSV</span>
             <input id="balanceCsvInput" type="file" accept=".csv,text/csv">
           </label>
           <label class="file-field">
-            <span>変動損益計算書 CSV</span>
-            <input id="profitCsvInput" type="file" accept=".csv,text/csv">
+            <span>利益管理表（365日変動損益計算書）CSV</span>
+            <input id="profitPlanCsvInput" type="file" accept=".csv,text/csv">
+          </label>
+          <label class="file-field">
+            <span>変動損益計算書推移表 CSV</span>
+            <input id="profitTrendCsvInput" type="file" accept=".csv,text/csv">
           </label>
         </div>
 
@@ -153,8 +167,12 @@
             <strong id="balanceImportStatus">未取込</strong>
           </article>
           <article>
-            <span>変動損益</span>
-            <strong id="profitImportStatus">未取込</strong>
+            <span>利益管理表</span>
+            <strong id="profitPlanImportStatus">未取込</strong>
+          </article>
+          <article>
+            <span>変動損益推移</span>
+            <strong id="profitTrendImportStatus">未取込</strong>
           </article>
         </div>
 

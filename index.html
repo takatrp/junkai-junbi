@@ -1,0 +1,312 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>月次巡回監査 面談準備ツール</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header class="app-header">
+    <div class="app-header__inner">
+      <div>
+        <p class="eyebrow">Matsumoto Accounting</p>
+        <h1>月次巡回監査 面談準備ツール</h1>
+        <p class="lead">決算月と訪問月から所長指示を確認し、過去・現在・未来の面談サマリーと宿題をまとめます。</p>
+      </div>
+      <div class="header-actions">
+        <button class="button button--subtle" id="loadSample" type="button">サンプル</button>
+        <button class="button button--subtle" id="clearDraft" type="button">初期化</button>
+        <button class="button button--primary" id="printClientSummary" type="button">共有用印刷</button>
+      </div>
+    </div>
+  </header>
+
+  <main class="app-shell">
+    <section class="status-strip" aria-label="準備状況">
+      <article class="status-card">
+        <span>対象</span>
+        <strong id="statusEntity">未設定</strong>
+      </article>
+      <article class="status-card">
+        <span>巡回月</span>
+        <strong id="statusAuditMonth">-</strong>
+      </article>
+      <article class="status-card">
+        <span>指示事項</span>
+        <strong id="statusInstructionCount">0件</strong>
+      </article>
+      <article class="status-card">
+        <span>面談論点</span>
+        <strong id="statusTopicCount">0件</strong>
+      </article>
+    </section>
+
+    <nav class="flow-tabs" aria-label="作業ステップ">
+      <button class="flow-tab is-active" data-step="prep" type="button">
+        <span>01</span>
+        巡回準備
+      </button>
+      <button class="flow-tab" data-step="data" type="button">
+        <span>02</span>
+        月次データ
+      </button>
+      <button class="flow-tab" data-step="agenda" type="button">
+        <span>03</span>
+        アジェンダ
+      </button>
+      <button class="flow-tab" data-step="print" type="button">
+        <span>04</span>
+        印刷・共有
+      </button>
+      <button class="flow-tab" data-step="result" type="button">
+        <span>05</span>
+        結果保存
+      </button>
+    </nav>
+
+    <section class="workspace-grid">
+      <section class="panel audit-panel step-panel is-active" data-step-panel="prep" aria-labelledby="auditPrepTitle">
+        <div class="panel-head">
+          <div>
+            <p class="section-kicker">01</p>
+            <h2 id="auditPrepTitle">巡回監査準備</h2>
+          </div>
+        </div>
+
+        <div class="field-grid">
+          <label>
+            <span>区分</span>
+            <select id="entityType">
+              <option value="corporate">法人</option>
+              <option value="individual">個人</option>
+            </select>
+          </label>
+          <label>
+            <span>法人名・屋号</span>
+            <input id="clientName" type="text" placeholder="株式会社〇〇 / 〇〇商店">
+          </label>
+          <label>
+            <span>決算月</span>
+            <select id="fiscalMonth"></select>
+          </label>
+          <label>
+            <span>訪問月</span>
+            <select id="visitMonth"></select>
+          </label>
+          <label>
+            <span>訪問日</span>
+            <input id="visitDate" type="date">
+          </label>
+          <label>
+            <span>参加者</span>
+            <input id="participants" type="text" placeholder="社長、経理担当、松本会計">
+          </label>
+        </div>
+
+        <div class="instruction-result">
+          <div>
+            <p class="result-label">自動判定</p>
+            <h3 id="auditMonthTitle">決算月と訪問月を選択してください</h3>
+            <p id="auditMonthDescription">訪問月が決算月の翌月なら1か月目、決算月なら12か月目です。</p>
+          </div>
+          <a class="pdf-link" id="pdfLink" href="./所長の指示事項 法人.pdf" target="_blank" rel="noopener">PDF原本を開く</a>
+        </div>
+
+        <div class="instruction-list" id="instructionList"></div>
+
+        <details class="pdf-viewer">
+          <summary>所長指示PDFを画面内で確認</summary>
+          <iframe id="pdfFrame" title="所長の指示事項 PDF" src="./所長の指示事項 法人.pdf#page=1&zoom=page-width"></iframe>
+        </details>
+      </section>
+
+      <section class="panel data-panel step-panel" data-step-panel="data" aria-labelledby="monthlyDataTitle">
+        <div class="panel-head">
+          <div>
+            <p class="section-kicker">02</p>
+            <h2 id="monthlyDataTitle">月次データ取込</h2>
+          </div>
+        </div>
+
+        <div class="file-grid">
+          <label class="file-field">
+            <span>勘定科目残高推移表 CSV</span>
+            <input id="balanceCsvInput" type="file" accept=".csv,text/csv">
+          </label>
+          <label class="file-field">
+            <span>変動損益計算書 CSV</span>
+            <input id="profitCsvInput" type="file" accept=".csv,text/csv">
+          </label>
+        </div>
+
+        <div class="data-status-grid">
+          <article>
+            <span>残高推移</span>
+            <strong id="balanceImportStatus">未取込</strong>
+          </article>
+          <article>
+            <span>変動損益</span>
+            <strong id="profitImportStatus">未取込</strong>
+          </article>
+        </div>
+
+        <div class="monthly-suggestion-panel">
+          <h3>カンニングペーパーに入れる月次ポイント</h3>
+          <div id="monthlySuggestionList" class="monthly-suggestion-list">
+            <p class="empty-note">CSVを取り込むと、伝えるべきポイントを自動で表示します。</p>
+          </div>
+        </div>
+      </section>
+
+      <section class="panel topic-panel step-panel" data-step-panel="agenda" aria-labelledby="topicTitle">
+        <div class="panel-head">
+          <div>
+            <p class="section-kicker">03</p>
+            <h2 id="topicTitle">面談アジェンダの作成</h2>
+          </div>
+        </div>
+
+        <label class="full-field">
+          <span>今回の面談で必ず話すこと</span>
+          <textarea id="meetingAim" rows="3" placeholder="例：月次の着地、資金繰り、決算までの注意点、前回宿題の確認"></textarea>
+        </label>
+
+        <div class="topic-tabs" role="tablist" aria-label="面談カテゴリ">
+          <button class="tab is-active" data-tab="past" type="button">過去</button>
+          <button class="tab" data-tab="present" type="button">現在</button>
+          <button class="tab" data-tab="future" type="button">未来</button>
+        </div>
+
+        <div class="topic-pane is-active" data-topic-pane="past">
+          <div class="category-head">
+            <h3>過去：経緯と前回宿題</h3>
+            <p>前回からの変化、未完了事項、過去の判断の結果を確認します。</p>
+          </div>
+          <div class="candidate-list" id="pastCandidates"></div>
+          <label class="full-field">
+            <span>過去の追加メモ</span>
+            <textarea id="pastManual" rows="3" placeholder="前回宿題、前月からの変化、確認済み事項など"></textarea>
+          </label>
+        </div>
+
+        <div class="topic-pane" data-topic-pane="present">
+          <div class="category-head">
+            <h3>現在：月次数値と監査確認</h3>
+            <p>月次試算表、資金、税務手続、所長指示の該当項目を確認します。</p>
+          </div>
+          <div class="candidate-list" id="presentCandidates"></div>
+          <label class="full-field">
+            <span>現在の追加メモ</span>
+            <textarea id="presentManual" rows="3" placeholder="今月の数字、資金繰り、税務確認、社長の関心など"></textarea>
+          </label>
+        </div>
+
+        <div class="topic-pane" data-topic-pane="future">
+          <div class="category-head">
+            <h3>未来：決算・納税・次の打ち手</h3>
+            <p>決算着地、納税、投資・採用・承継など、次に判断することへつなげます。</p>
+          </div>
+          <div class="candidate-list" id="futureCandidates"></div>
+          <label class="full-field">
+            <span>未来の追加メモ</span>
+            <textarea id="futureManual" rows="3" placeholder="次回までに確認したいこと、決算までの打ち手、次の提案など"></textarea>
+          </label>
+        </div>
+      </section>
+    </section>
+
+    <section class="panel output-panel step-panel" data-step-panel="print" aria-labelledby="outputTitle">
+      <div class="panel-head">
+        <div>
+          <p class="section-kicker">04</p>
+          <h2 id="outputTitle">共有用アジェンダ・カンニングペーパー</h2>
+        </div>
+        <div class="output-actions">
+          <button class="button button--subtle" id="copyClientSummary" type="button">要約版コピー</button>
+          <button class="button button--subtle" id="copyDetailedSummary" type="button">詳細版コピー</button>
+          <button class="button button--primary" id="generateSummary" type="button">再生成</button>
+        </div>
+      </div>
+
+      <div class="summary-grid">
+        <article class="summary-box client-summary">
+          <div class="summary-box-head">
+            <h3>クライアント共有用アジェンダ</h3>
+            <button class="button button--subtle" id="printClientAgenda" type="button">印刷</button>
+          </div>
+          <div id="clientAgendaView" class="agenda-document"></div>
+          <pre id="clientSummaryText" class="copy-source"></pre>
+        </article>
+        <article class="summary-box detailed-summary">
+          <div class="summary-box-head">
+            <h3>カンニングペーパー</h3>
+            <button class="button button--subtle" id="printDetailedSummary" type="button">印刷</button>
+          </div>
+          <pre id="detailedSummaryText"></pre>
+        </article>
+      </div>
+    </section>
+
+    <section class="panel report-panel step-panel" data-step-panel="print" aria-labelledby="reportTitle">
+      <div class="panel-head">
+        <div>
+          <p class="section-kicker">05</p>
+          <h2 id="reportTitle">月次レポート</h2>
+        </div>
+        <div class="output-actions">
+          <button class="button button--subtle" id="copyMonthlyReport" type="button">レポートコピー</button>
+          <button class="button button--primary" id="printMonthlyReport" type="button">レポート印刷</button>
+        </div>
+      </div>
+      <div id="monthlyReportView" class="monthly-report">
+        <p class="empty-note">CSVを取り込むと、月次レポートを自動作成します。</p>
+      </div>
+      <pre id="monthlyReportText" class="copy-source"></pre>
+    </section>
+
+    <section class="panel result-panel step-panel" data-step-panel="result" aria-labelledby="resultTitle">
+      <div class="panel-head">
+        <div>
+          <p class="section-kicker">06</p>
+          <h2 id="resultTitle">面談結果入力・保存</h2>
+        </div>
+        <button class="button button--primary" id="saveRecord" type="button">面談結果を保存</button>
+      </div>
+
+      <div class="result-grid">
+        <label>
+          <span>面談で決まったこと</span>
+          <textarea id="decisions" rows="4" placeholder="合意事項、提案内容、次回の方向性"></textarea>
+        </label>
+        <label>
+          <span>宿題・依頼事項</span>
+          <textarea id="homework" rows="4" placeholder="誰が、いつまでに、何を確認するか"></textarea>
+        </label>
+        <label>
+          <span>振り返り・次回注意点</span>
+          <textarea id="reflection" rows="4" placeholder="話が広がった点、次回深掘りする点、所内共有事項"></textarea>
+        </label>
+      </div>
+
+      <div class="saved-records">
+        <h3>保存履歴</h3>
+        <div id="recordList" class="record-list"></div>
+      </div>
+    </section>
+  </main>
+
+  <template id="candidateTemplate">
+    <article class="candidate-card">
+      <label class="candidate-check">
+        <input type="checkbox">
+        <span class="candidate-title"></span>
+      </label>
+      <p class="candidate-source"></p>
+      <textarea rows="2" placeholder="面談で確認する内容、数字、相手への聞き方"></textarea>
+    </article>
+  </template>
+
+  <script src="app.js"></script>
+</body>
+</html>

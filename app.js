@@ -345,6 +345,9 @@ function bindEvents() {
   $("#profitCsvInput").addEventListener("change", (event) => handleCsvImport("profit", event.target.files[0]));
   $("#loadSample").addEventListener("click", loadSample);
   $("#clearDraft").addEventListener("click", clearDraft);
+  $("#exportJson").addEventListener("click", exportJson);
+  $("#importJson").addEventListener("click", () => $("#jsonImportInput").click());
+  $("#jsonImportInput").addEventListener("change", handleJsonImport);
   $("#saveRecord").addEventListener("click", saveRecord);
 }
 
@@ -779,6 +782,76 @@ function restoreDraft() {
   } catch {
     localStorage.removeItem(draftKey);
   }
+}
+
+function exportJson() {
+  renderAll();
+  const payload = {
+    schema: "junkai-junbi.v1",
+    savedAt: new Date().toISOString(),
+    form: readState(),
+    candidates: selectedCandidateMap(),
+    monthlyAnalysis,
+    summaries: {
+      client: $("#clientSummaryText").textContent,
+      detailed: $("#detailedSummaryText").textContent,
+      monthlyReport: $("#monthlyReportText").textContent
+    },
+    records: loadRecords()
+  };
+  const blob = new Blob([JSON.stringify(payload, null, 2)], { type: "application/json" });
+  const url = URL.createObjectURL(blob);
+  const anchor = document.createElement("a");
+  anchor.href = url;
+  anchor.download = jsonFileName(payload.form);
+  document.body.appendChild(anchor);
+  anchor.click();
+  anchor.remove();
+  URL.revokeObjectURL(url);
+}
+
+async function handleJsonImport(event) {
+  const file = event.target.files[0];
+  event.target.value = "";
+  if (!file) return;
+  try {
+    const payload = JSON.parse(await file.text());
+    if (!payload || payload.schema !== "junkai-junbi.v1") {
+      throw new Error("対応していないJSON形式です。");
+    }
+    restoreJsonPayload(payload);
+    saveDraft();
+    renderAll();
+    renderRecords();
+    window.alert("JSONを読み込みました。");
+  } catch (error) {
+    window.alert(`JSONを読み込めませんでした: ${error.message}`);
+  }
+}
+
+function restoreJsonPayload(payload) {
+  restoredCandidates = payload.candidates || {};
+  $$(".candidate-card").forEach((card) => card.remove());
+  monthlyAnalysis = payload.monthlyAnalysis || { balance: null, profit: null, suggestions: [] };
+  Object.entries(payload.form || {}).forEach(([id, value]) => {
+    if (id === "entityType") {
+      setEntityType(value);
+    } else if ($(`#${id}`)) {
+      $(`#${id}`).value = value || "";
+    }
+  });
+  if (Array.isArray(payload.records)) {
+    localStorage.setItem(recordKey, JSON.stringify(payload.records.slice(0, 20)));
+  }
+}
+
+function jsonFileName(form) {
+  const date = form.visitDate || new Date().toISOString().slice(0, 10);
+  const client = (form.clientName || "meeting")
+    .replace(/[\\/:*?"<>|]/g, "")
+    .replace(/\s+/g, "-")
+    .slice(0, 40) || "meeting";
+  return `${date}-${client}-junkai-junbi.json`;
 }
 
 // ============================================================

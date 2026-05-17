@@ -142,87 +142,87 @@ const instructionData = {
 // ============================================================
 // baseCandidates：毎回表示する基本候補メニュー
 //   各項目の detail は職員向けカンニング（「何を聞くか」まで落とす）
+//   group     … タブ内のグルーピング見出し
+//   importance… "must"（必須）/ "recommend"（推奨）
+//                必須＝巡回監査の背骨。初期チェックON。解除は可能。
 // ============================================================
 const baseCandidates = {
   past: [
     candidate(
       "前回宿題の進捗確認",
       "「前回お願いした○○の件、いかがでしたか？」と冒頭で必ず確認する。実行済み・途中・未着手のどれかを経営者に答えてもらう。",
-      "基本"
-    ),
-    candidate(
-      "売上・粗利の変化と背景",
-      "「先月と比べて売上が○円変わっています。何か思い当たる原因はありますか？」客数か単価か、商品・取引先ごとに掘り下げる。",
-      "基本"
-    ),
-    candidate(
-      "計画（予算）との差異の要因",
-      "「期初の目標に対して、今月は○円のプラス/マイナスです。なぜそうなったか一緒に整理しましょう。」原因が売上側か費用側かを確認する。",
-      "基本"
+      "基本",
+      { group: "前回の約束", importance: "must" }
     ),
     candidate(
       "過去の打ち手の結果確認",
       "「以前ご検討されていた値上げ/採用/設備投資/借入について、その後どうなりましたか？」数字への影響を一緒に確認する。",
-      "基本"
+      "基本",
+      { group: "数字の振り返り", importance: "recommend" }
     ),
     candidate(
       "急変した勘定科目の背景",
       "「○○の残高が先月から大きく動いています。一時的なものか継続的なものかを教えてください。」残高推移の異常値を指摘して背景を聞く。",
-      "基本"
+      "基本",
+      { group: "数字の振り返り", importance: "recommend" }
     )
   ],
   present: [
     candidate(
-      "月次試算表の要点確認",
-      "売上・限界利益・固定費・営業利益の4点を変動損益計算書で示し、「今月の数字のポイントはここです」と経営者に現在地を伝える。",
-      "基本"
+      "月次試算表・変動損益計算書の確認",
+      "売上・限界利益・固定費・営業利益を変動損益計算書で示し、「今月の数字のポイントはここです」と経営者に現在地を伝える。計画比・前年比の差異の要因もこの過程で確認する。",
+      "基本",
+      { group: "業績の現在地", importance: "must" }
     ),
     candidate(
       "資金残高と近い支払い",
       "「現在の手元資金は○円です。今月末までの納税・社会保険・借入返済の合計は○円なので、余裕は○円です。」資金ショートがないか確認する。",
-      "基本"
-    ),
-    candidate(
-      "限界利益率の水準",
-      "「今月の限界利益率は○%です。先月の○%、昨年の○%と比べていかがでしょうか？」変化の原因が仕入・外注・値引きのどれかを確認する。",
-      "基本"
+      "基本",
+      { group: "資金", importance: "must" }
     ),
     candidate(
       "売掛金の回収状況",
       "「売掛金の残高が○円あります。回収予定や回収が遅れているものはありますか？」滞留している取引先があれば理由と対応策を確認する。",
-      "基本"
+      "基本",
+      { group: "資金", importance: "recommend" }
     ),
     candidate(
       "経営者の足元の関心・悩み",
       "「最近、売上・仕入・人員・取引先など、特に気になっていることはありますか？」数字に出る前の変化を経営者の言葉で聞く。",
-      "基本"
+      "基本",
+      { group: "経営者の声", importance: "recommend" }
     )
   ],
   future: [
     candidate(
       "決算着地と納税見込み",
       "「このペースでいくと今期の利益は約○円、法人税・消費税の概算は約○円になります。」先手で提示することが信頼につながる。",
-      "基本"
+      "基本",
+      { group: "決算・納税", importance: "must" }
     ),
     candidate(
-      "目標利益への残余対策",
-      "「目標利益まで残り○円です。売上を上げる方向と固定費を下げる方向、どちらで対応しますか？」経営者自身に選択させる。",
-      "基本"
+      "目標利益までの必要売上の確認",
+      "「目標利益まで残り○円です。限界利益率が○%なので、追加の売上が○円必要です」と社長に認識していただく。",
+      "基本",
+      { group: "次の打ち手", importance: "recommend" }
     ),
     candidate(
       "次の3か月の資金見通し",
       "「来月から3か月の入金予定と支払予定を並べると、○月が一番資金が薄くなります。今から手を打っておきましょう。」",
-      "基本"
+      "基本",
+      { group: "次の打ち手", importance: "recommend" }
     ),
     candidate(
       "設備投資・採用・借入の検討",
       "「次の半年で検討している設備投資や採用、借入はありますか？今の利益と資金の状況から、タイミングを一緒に考えましょう。」",
-      "基本"
+      "基本",
+      { group: "次の打ち手", importance: "recommend" }
     ),
     candidate(
       "次回までの宿題整理",
       "「次回○月○日までに、○○について○○さんにご確認いただけますか？」必ず誰が・いつまでに・何をするかを明確にして面談を締める。",
-      "基本"
+      "基本",
+      { group: "次回への引き継ぎ", importance: "must" }
     )
   ]
 };
@@ -290,20 +290,101 @@ function cleanInstructionText(text) {
     .trim();
 }
 
-function candidate(title, detail, source) {
-  return { title, detail, source };
+function candidate(title, detail, source, options = {}) {
+  return {
+    title,
+    detail,
+    source,
+    group: options.group || "その他",
+    importance: options.importance || null  // "must" | "recommend" | null
+  };
 }
 
 // ============================================================
 // 初期化
 // ============================================================
 function init() {
+  injectExtraStyles();
   populateMonthSelects();
   bindEvents();
   setDefaultDate();
   restoreDraft();
   renderAll();
   renderRecords();
+}
+
+// ============================================================
+// 追加スタイル注入
+//   グループ見出し・重要度バッジ・メモ欄など、今回追加した要素の最小スタイル。
+//   将来 styles.css に移してこの関数を削除しても動作に影響はない。
+// ============================================================
+function injectExtraStyles() {
+  if (document.getElementById("junkaiExtraStyles")) return;
+  const style = document.createElement("style");
+  style.id = "junkaiExtraStyles";
+  style.textContent = `
+    /* タブ内グループ見出し */
+    .candidate-group-heading {
+      margin: 16px 0 6px;
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      color: #5b6470;
+      border-left: 3px solid #c4ccd6;
+      padding-left: 8px;
+    }
+    .candidate-group-heading:first-child { margin-top: 4px; }
+
+    /* 重要度バッジ */
+    .importance-badge {
+      display: inline-block;
+      margin-left: 8px;
+      padding: 1px 8px;
+      border-radius: 999px;
+      font-size: 11px;
+      font-weight: 700;
+      line-height: 1.6;
+      vertical-align: middle;
+    }
+    .importance-badge--must {
+      background: #fdecec;
+      color: #c0392b;
+      border: 1px solid #f1b9b4;
+    }
+    .importance-badge--recommend {
+      background: #eef3fb;
+      color: #2c5b9b;
+      border: 1px solid #c2d2ea;
+    }
+
+    /* クライアント用アジェンダ：次回監査予定日時 */
+    .agenda-nextvisit { margin-top: 18px; }
+    .agenda-nextvisit-line {
+      font-size: 15px;
+      letter-spacing: 0.08em;
+      border-bottom: 1px solid #2b2f36;
+      display: inline-block;
+      padding: 2px 4px 4px;
+    }
+
+    /* クライアント用アジェンダ：メモ欄 */
+    .agenda-memo { margin-top: 18px; }
+    .agenda-memo-space {
+      margin-top: 6px;
+      min-height: 120px;
+      border: 1px solid #c4ccd6;
+      border-radius: 6px;
+      background:
+        repeating-linear-gradient(
+          to bottom,
+          transparent,
+          transparent 31px,
+          #e3e8ee 31px,
+          #e3e8ee 32px
+        );
+    }
+  `;
+  document.head.appendChild(style);
 }
 
 function populateMonthSelects() {
@@ -460,27 +541,47 @@ function renderAuditPreparation() {
 
 // ============================================================
 // Step03：候補カード描画
-//   ・所長指示 → category 属性で 過去/現在/未来 に振り分け済み
+//   ・所長指示 → カンニングペーパーに必ず表示（選択候補からは除外）
 //   ・月次データ（CSV）→ suggestion の category で各タブに振り分け
 //   ・基本候補 → baseCandidates で各タブに固定表示
+//   各タブ内は group ごとに見出しをつけて描画する
 // ============================================================
 function renderCandidates() {
-  const instructions = currentInstructions();
   const previous = { ...restoredCandidates, ...selectedCandidateMap() };
   Object.keys(categoryLabels).forEach((category) => {
-    // 所長指示はカンニングペーパーに必ず表示するため、選択候補からは除外する
     // CSV由来のサジェストを category フィールドで振り分ける
     // category未設定のものは "present" 扱い（後方互換）
     const dataCandidates = monthlyAnalysis.suggestions
       .filter((item) => (item.category || "present") === category)
-      .map((item) => candidate(item.title, item.detail, "月次データ"));
+      .map((item) => candidate(item.title, item.detail, "月次データ", { group: "月次データの注目点" }));
 
     const candidates = [...dataCandidates, ...baseCandidates[category]];
     const container = $(`#${category}Candidates`);
     container.innerHTML = "";
-    candidates.forEach((item, index) => {
-      const id = `${category}-${item.source}-${item.title}`.replace(/\s+/g, "-");
-      container.appendChild(createCandidateCard(category, item, id, previous[id], index));
+
+    // group ごとにまとめる（出現順を維持）
+    const groups = [];
+    candidates.forEach((item) => {
+      const name = item.group || "その他";
+      let group = groups.find((g) => g.name === name);
+      if (!group) {
+        group = { name, items: [] };
+        groups.push(group);
+      }
+      group.items.push(item);
+    });
+
+    let index = 0;
+    groups.forEach((group) => {
+      const heading = document.createElement("p");
+      heading.className = "candidate-group-heading";
+      heading.textContent = group.name;
+      container.appendChild(heading);
+      group.items.forEach((item) => {
+        const id = `${category}-${item.source}-${item.title}`.replace(/\s+/g, "-");
+        container.appendChild(createCandidateCard(category, item, id, previous[id], index));
+        index += 1;
+      });
     });
   });
 }
@@ -497,13 +598,24 @@ function createCandidateCard(category, item, id, previous, index) {
   node.dataset.title = item.title;
   node.dataset.detail = item.detail;
   node.dataset.source = item.source;
+  if (item.importance) node.dataset.importance = item.importance;
   title.textContent = item.title;
+
+  // 重要度バッジ（必須／推奨）をタイトル横に表示
+  if (item.importance) {
+    const badge = document.createElement("span");
+    badge.className = `importance-badge importance-badge--${item.importance}`;
+    badge.textContent = item.importance === "must" ? "必須" : "推奨";
+    title.insertAdjacentElement("afterend", badge);
+  }
+
   source.textContent = item.detail ? `${item.source}：${item.detail}` : item.source;
   textarea.value = previous?.note || "";
   const hasPrevious = Boolean(previous);
+  // 初期チェック：必須項目・CSV由来項目はON。推奨項目はOFF。
   checkbox.checked = hasPrevious
     ? Boolean(previous.checked)
-    : Boolean((item.source === "所長指示" || item.source === "月次データ") && index < 5);
+    : Boolean(item.importance === "must" || item.source === "月次データ");
   node.classList.toggle("is-selected", checkbox.checked || Boolean(textarea.value.trim()));
 
   checkbox.addEventListener("change", () => {
@@ -584,7 +696,11 @@ function createClientSummary(state, grouped) {
     ]),
     "",
     "次回までの確認事項",
-    ...agenda.homework.map((line) => `・${line}`)
+    ...agenda.homework.map((line) => `・${line}`),
+    "",
+    "次回監査予定日時：　　月　　日（　）　　：　　",
+    "",
+    "メモ"
   ].join("\n");
 }
 
@@ -665,6 +781,14 @@ function renderClientAgenda(state, grouped) {
         <ul>
           ${agenda.homework.map((line) => `<li>${escapeHtml(line)}</li>`).join("")}
         </ul>
+      </section>
+      <section class="agenda-nextvisit">
+        <h3>次回監査予定日時</h3>
+        <p class="agenda-nextvisit-line">　　月　　日（　）　　：　　</p>
+      </section>
+      <section class="agenda-memo">
+        <h3>メモ欄</h3>
+        <div class="agenda-memo-space"></div>
       </section>
     </section>
   `;

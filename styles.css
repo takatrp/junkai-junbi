@@ -722,6 +722,137 @@ button:focus-visible {
   line-height: 1.75;
 }
 
+.cheat-sheet {
+  margin-top: 12px;
+}
+
+.cheat-paper {
+  border: 1px solid #d4dad7;
+  background: #fff;
+}
+
+.cheat-hero {
+  padding: 16px 18px;
+  background: #304c55;
+  color: #fff;
+}
+
+.cheat-hero p {
+  margin-bottom: 2px;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.cheat-hero h2 {
+  margin: 0;
+  color: #fff;
+  font-size: 22px;
+}
+
+.cheat-meta-grid,
+.cheat-flow,
+.cheat-result-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 8px;
+  padding: 14px 18px;
+}
+
+.cheat-meta-grid article,
+.cheat-flow article,
+.cheat-result-grid article,
+.cheat-item {
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  padding: 10px;
+  background: #fbfcfb;
+}
+
+.cheat-meta-grid span,
+.cheat-flow span,
+.cheat-result-grid span {
+  display: block;
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.cheat-meta-grid strong {
+  display: block;
+  margin-top: 2px;
+  font-size: 15px;
+}
+
+.cheat-section {
+  padding: 16px 18px;
+  border-top: 1px solid #dfe5e1;
+}
+
+.cheat-section h3 {
+  margin: 0 0 10px;
+  border-bottom: 0;
+  padding: 7px 10px;
+  background: #eef5f1;
+  color: #263932;
+  font-size: 15px;
+}
+
+.cheat-list {
+  display: grid;
+  gap: 8px;
+}
+
+.cheat-item strong {
+  display: block;
+  color: #16231d;
+}
+
+.cheat-item p {
+  margin: 5px 0 0;
+  color: #42534b;
+  font-size: 13px;
+}
+
+.cheat-flow {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  padding: 0;
+}
+
+.cheat-flow article {
+  background: #f7fbfa;
+}
+
+.cheat-flow span {
+  width: 24px;
+  height: 24px;
+  margin-bottom: 6px;
+  border-radius: 999px;
+  background: var(--primary);
+  color: #fff;
+  text-align: center;
+  line-height: 24px;
+}
+
+.cheat-topic-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  border-top: 1px solid #dfe5e1;
+}
+
+.cheat-topic {
+  border-top: 0;
+  border-right: 1px solid #dfe5e1;
+}
+
+.cheat-topic:last-child {
+  border-right: 0;
+}
+
+.cheat-result-grid {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  padding: 0;
+}
+
 .agenda-document {
   margin-top: 14px;
 }
@@ -905,6 +1036,10 @@ button:focus-visible {
   .summary-grid,
   .status-strip,
   .flow-tabs,
+  .cheat-meta-grid,
+  .cheat-flow,
+  .cheat-topic-grid,
+  .cheat-result-grid,
   .field-grid,
   .audit-field-grid,
   .audit-meta-grid,

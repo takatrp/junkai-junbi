@@ -1,7 +1,7 @@
 // ============================================================
 // instructionData：所長指示（巡回月別・カレンダー月別・毎月）
 // ============================================================
-const instructionData = {
+const embeddedInstructionData = {
   corporate: {
     pdf: "./所長の指示事項 法人.pdf",
     label: "法人",
@@ -138,6 +138,9 @@ const instructionData = {
     ]
   }
 };
+
+let instructionData = embeddedInstructionData;
+const instructionReloadToken = Date.now();
 
 // ============================================================
 // baseCandidates：毎回表示する基本候補メニュー
@@ -349,14 +352,63 @@ function candidate(title, detail, source, options = {}) {
 // ============================================================
 // 初期化
 // ============================================================
-function init() {
+async function init() {
   injectExtraStyles();
+  await loadInstructionData();
   populateMonthSelects();
   bindEvents();
   setDefaultDate();
   restoreDraft();
   renderAll();
   renderRecords();
+}
+
+async function loadInstructionData() {
+  if (!window.fetch) return;
+  try {
+    const response = await fetch(`./instructions.json?ts=${Date.now()}`, { cache: "no-store" });
+    if (!response.ok) return;
+    const externalData = await response.json();
+    instructionData = normalizeInstructionData(externalData);
+  } catch {
+    instructionData = embeddedInstructionData;
+  }
+}
+
+function normalizeInstructionData(data) {
+  const normalized = {};
+  ["corporate", "individual"].forEach((entity) => {
+    const fallback = embeddedInstructionData[entity];
+    const source = data?.[entity] || {};
+    normalized[entity] = {
+      pdf: source.pdf || fallback.pdf,
+      label: source.label || fallback.label,
+      auditMonths: normalizeInstructionMap(source.auditMonths || fallback.auditMonths),
+      calendarMonths: normalizeInstructionMap(source.calendarMonths || fallback.calendarMonths),
+      recurring: normalizeInstructionList(source.recurring || fallback.recurring)
+    };
+  });
+  return normalized;
+}
+
+function normalizeInstructionMap(map) {
+  return Object.fromEntries(
+    Object.entries(map || {}).map(([key, list]) => [key, normalizeInstructionList(list)])
+  );
+}
+
+function normalizeInstructionList(list) {
+  return (Array.isArray(list) ? list : []).map((item) => {
+    if (item.text && item.scope) return instructionLine(item.scope, item.text, item.category || "present");
+    return {
+      title: item.title || item.text || "",
+      detail: item.detail || "",
+      category: item.category || "present",
+      source: item.source || "所長指示",
+      scope: item.scope || item.source || "所長指示",
+      text: item.text || item.title || ""
+    };
+  }).filter((item) => item.title);
 }
 
 // ============================================================
@@ -567,8 +619,8 @@ function renderAuditPreparation() {
   const data = instructionData[entity];
   const instructions = currentInstructions();
 
-  $("#pdfLink").href = data.pdf;
-  $("#pdfFrame").src = `${data.pdf}#page=1&zoom=page-width`;
+  $("#pdfLink").href = instructionPdfUrl(data.pdf);
+  $("#pdfFrame").src = `${instructionPdfUrl(data.pdf)}#page=1&zoom=page-width`;
 
   if (!index && !Number($("#visitMonth").value)) {
     $("#auditMonthTitle").textContent = "決算月と訪問月を選択してください";
@@ -705,6 +757,11 @@ function createCandidateCard(category, item, id, previous, index) {
   return node;
 }
 
+function instructionPdfUrl(path) {
+  const separator = path.includes("?") ? "&" : "?";
+  return `${path}${separator}ts=${instructionReloadToken}`;
+}
+
 function addCustomCandidate(category) {
   if (!categoryLabels[category]) return;
   const title = window.prompt(`${categoryLabels[category]}に追加する項目名を入力してください。`);
@@ -781,16 +838,18 @@ function renderSummaries() {
   $("#clientSummaryText").textContent = createClientSummary(state, grouped);
   renderClientAgenda(state, grouped);
   $("#detailedSummaryText").textContent = createDetailedSummary(state, grouped);
+  $("#detailedSummaryView").innerHTML = createDetailedSummaryHtml(state, grouped);
 }
 
 function createClientSummary(state, grouped) {
   const agenda = createClientAgendaModel(state, grouped);
   return [
     agenda.title,
+    `訪問日：${agenda.visitDate}`,
     "",
     "本日の面談テーマ",
     ...agenda.sections.flatMap((section) => [
-      `【${section.heading}】`,
+      section.heading,
       ...section.items.map((item) => `・${item.title}`)
     ]),
     "",
@@ -805,12 +864,13 @@ function createClientAgendaModel(state, grouped) {
   const aim = state.meetingAim || "月次巡回監査の結果確認と今後の対応整理";
   const sections = ["past", "present", "future"].map((category) => ({
     category,
-    heading: categoryHeadings[category],
+    heading: `【${categoryLabels[category]}】`,
     lead: categoryLead(category),
     items: clientAgendaItems(category, grouped[category], state[`${category}Manual`])
   }));
   return {
     title: `${client}様 面談テーマ`,
+    visitDate: formatVisitDate(state.visitDate),
     aim,
     sections
   };
@@ -845,7 +905,7 @@ function renderClientAgenda(state, grouped) {
   $("#clientAgendaView").innerHTML = `
     <section class="agenda-paper">
       <header class="agenda-hero">
-        <p>月次巡回監査</p>
+        <p>月次巡回監査 / 訪問日：${escapeHtml(agenda.visitDate)}</p>
         <h2>${escapeHtml(agenda.title)}</h2>
       </header>
       <section class="agenda-purpose">
@@ -930,6 +990,105 @@ function createDetailedSummary(state, grouped) {
     `宿題：${state.homework || "未入力"}`,
     `振り返り：${state.reflection || "未入力"}`
   ].join("\n");
+}
+
+function createDetailedSummaryHtml(state, grouped) {
+  const index = auditMonthIndex();
+  const instructions = currentInstructions();
+  const entity = instructionData[state.entityType];
+  return `
+    <section class="cheat-paper">
+      <header class="cheat-hero">
+        <p>月次巡回監査</p>
+        <h2>カンニングペーパー</h2>
+      </header>
+
+      <section class="cheat-meta-grid">
+        <article><span>対象</span><strong>${escapeHtml(state.clientName || "未入力")}</strong></article>
+        <article><span>区分</span><strong>${escapeHtml(entity.label)}</strong></article>
+        <article><span>訪問日</span><strong>${escapeHtml(formatVisitDate(state.visitDate))}</strong></article>
+        <article><span>巡回月</span><strong>${index || "-"}か月目</strong></article>
+      </section>
+
+      <section class="cheat-section">
+        <h3>所長指示</h3>
+        <div class="cheat-list">
+          ${instructions.length
+            ? instructions.map((item) => `
+              <article class="cheat-item">
+                <strong>${escapeHtml(item.title)}</strong>
+                ${item.detail ? `<p>${escapeHtml(item.detail)}</p>` : ""}
+              </article>
+            `).join("")
+            : `<article class="cheat-item"><strong>該当指示なし</strong><p>PDF原本で確認してください。</p></article>`}
+        </div>
+      </section>
+
+      <section class="cheat-section">
+        <h3>月次データの注目点</h3>
+        <div class="cheat-list">
+          ${monthlyAnalysis.suggestions.length
+            ? monthlyAnalysis.suggestions.map((item) => `
+              <article class="cheat-item cheat-item--${escapeHtml(item.category || "present")}">
+                <strong>${escapeHtml(item.title)}</strong>
+                <p>${escapeHtml(item.detail)}</p>
+              </article>
+            `).join("")
+            : `<article class="cheat-item"><strong>CSV未取込</strong><p>月次CSVを取り込むと、数値から伝えるべきポイントを表示します。</p></article>`}
+        </div>
+      </section>
+
+      <section class="cheat-section">
+        <h3>面談の進め方</h3>
+        <div class="cheat-flow">
+          <article><span>1</span><strong>過去を確定</strong><p>前回宿題と先月からの変化を、まず経営者に話してもらいます。</p></article>
+          <article><span>2</span><strong>現在を共有</strong><p>資金・限界利益率・異常値など、数字で今の状態を確認します。</p></article>
+          <article><span>3</span><strong>未来を設計</strong><p>決算着地・納税・資金繰りから、次の判断事項につなげます。</p></article>
+          <article><span>4</span><strong>宿題を決める</strong><p>誰が・いつまでに・何をするかを確認して締めます。</p></article>
+        </div>
+      </section>
+
+      <section class="cheat-topic-grid">
+        ${["past", "present", "future"].map((category) => cheatTopicHtml(category, grouped[category], state[`${category}Manual`])).join("")}
+      </section>
+
+      <section class="cheat-section">
+        <h3>面談結果メモ</h3>
+        <div class="cheat-result-grid">
+          <article><span>決まったこと</span><p>${escapeHtml(state.decisions || "未入力")}</p></article>
+          <article><span>宿題</span><p>${escapeHtml(state.homework || "未入力")}</p></article>
+          <article><span>振り返り</span><p>${escapeHtml(state.reflection || "未入力")}</p></article>
+        </div>
+      </section>
+    </section>
+  `;
+}
+
+function cheatTopicHtml(category, topics, manual) {
+  const manualLines = splitLines(manual);
+  const body = [
+    ...topics.map((topic) => `
+      <article class="cheat-item">
+        <strong>${escapeHtml(topic.title)}</strong>
+        ${topic.detail ? `<p>確認観点：${escapeHtml(topic.detail)}</p>` : ""}
+        <p>面談メモ：${escapeHtml(topic.note || "未入力")}</p>
+      </article>
+    `),
+    ...manualLines.map((line) => `
+      <article class="cheat-item">
+        <strong>追加メモ</strong>
+        <p>${escapeHtml(line)}</p>
+      </article>
+    `)
+  ];
+  return `
+    <section class="cheat-section cheat-topic cheat-topic--${category}">
+      <h3>${escapeHtml(categoryHeadings[category])}</h3>
+      <div class="cheat-list">
+        ${body.length ? body.join("") : `<article class="cheat-item"><strong>未選択</strong><p>必要に応じて項目を追加してください。</p></article>`}
+      </div>
+    </section>
+  `;
 }
 
 function detailedTopicBlock(category, topics, manual) {
@@ -1248,6 +1407,15 @@ function formatPercent(value) {
 
 function roundOne(value) {
   return Math.round(value * 10) / 10;
+}
+
+function formatVisitDate(value) {
+  if (!value) return "未設定";
+  const [year, month, day] = value.split("-").map(Number);
+  if (!year || !month || !day) return value;
+  const date = new Date(year, month - 1, day);
+  const weekdays = ["日", "月", "火", "水", "木", "金", "土"];
+  return `${year}年${month}月${day}日（${weekdays[date.getDay()]}）`;
 }
 
 function splitLines(value) {

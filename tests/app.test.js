@@ -28,6 +28,7 @@ this.api = {
   isCarryForwardEligible,
   createNewItem,
   updateItemStatus,
+  moveItemWithinCategory,
   buildClientFacingItems,
   buildInternalItems,
   buildClientFacingOutput,
@@ -129,6 +130,24 @@ test("繰越ロジック: 未完了のみ繰越し、完了・取り下げ・繰
   const withdrawnItem = updatedWithdrawn.find((item) => item.id === "item-006");
   assert.equal(withdrawnItem.status, "withdrawn");
   assert.equal(withdrawnItem.carryForward, false);
+});
+
+test("アジェンダ並び替え: 同じカテゴリ内で上下移動できる", () => {
+  const items = [
+    api.createNewItem({ id: "past-001", title: "過去1", category: "previous" }),
+    api.createNewItem({ id: "current-001", title: "現在1", category: "current" }),
+    api.createNewItem({ id: "past-002", title: "過去2", category: "previous" }),
+    api.createNewItem({ id: "past-003", title: "過去3", category: "previous" })
+  ];
+
+  const movedUp = api.moveItemWithinCategory(items, "past-003", "up");
+  assert.deepEqual(Array.from(movedUp, (item) => item.id), ["past-001", "current-001", "past-003", "past-002"]);
+
+  const topUnchanged = api.moveItemWithinCategory(movedUp, "past-001", "up");
+  assert.deepEqual(Array.from(topUnchanged, (item) => item.id), ["past-001", "current-001", "past-003", "past-002"]);
+
+  const currentUnchanged = api.moveItemWithinCategory(items, "current-001", "down");
+  assert.deepEqual(Array.from(currentUnchanged, (item) => item.id), ["past-001", "current-001", "past-002", "past-003"]);
 });
 
 test("visibility分離: internal項目は顧客共有用に出さず、内部用とStock要約では内部欄に分ける", () => {

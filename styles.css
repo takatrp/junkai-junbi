@@ -381,6 +381,14 @@ button:focus-visible {
   background: #fbfcfb;
 }
 
+.topic-add-slot {
+  margin-top: 10px;
+}
+
+.topic-item-entry {
+  margin-bottom: 14px;
+}
+
 .item-entry-grid {
   margin-top: 12px;
 }
@@ -467,7 +475,7 @@ button:focus-visible {
   display: flex;
   align-items: center;
   gap: 10px;
-  padding-right: 64px;
+  padding-right: 148px;
 }
 
 .candidate-check input {
@@ -494,12 +502,34 @@ button:focus-visible {
   margin-top: 0;
 }
 
-.candidate-delete-button {
+.candidate-card-actions {
   position: absolute;
   top: 8px;
   right: 8px;
+  display: flex;
+  gap: 6px;
+}
+
+.reorder-button {
+  min-width: 32px;
+  min-height: 30px;
+  padding: 4px 8px;
+}
+
+.reorder-button:disabled {
+  cursor: not-allowed;
+  opacity: 0.45;
+}
+
+.candidate-delete-button {
   min-height: 30px;
   padding: 4px 10px;
+}
+
+.topic-entry-actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 12px;
 }
 
 .internal-note-list {
@@ -887,6 +917,16 @@ footer.mk-mini a {
   .json-meta-list {
     display: grid;
     grid-template-columns: 1fr;
+  }
+
+  .candidate-card-actions {
+    position: static;
+    justify-content: flex-end;
+    margin-bottom: 8px;
+  }
+
+  .candidate-check {
+    padding-right: 0;
   }
 
   .status-card {

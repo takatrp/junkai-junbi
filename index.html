@@ -172,68 +172,6 @@
         </div>
       </div>
 
-      <section class="item-entry-panel" aria-labelledby="newItemTitleLabel">
-        <div class="category-head">
-          <div>
-            <h3 id="newItemTitleLabel">新規事項追加</h3>
-            <p>今回扱うテーマを、担当・期限・状態・公開範囲と一緒に追加します。</p>
-          </div>
-          <button class="button button--primary" id="addAgendaItem" type="button">事項を追加</button>
-        </div>
-        <div class="field-grid item-entry-grid">
-          <label>
-            <span>タイトル</span>
-            <input id="newItemTitle" type="text" autocomplete="off" placeholder="例：資料提出期限の確認">
-          </label>
-          <label>
-            <span>表示カテゴリ</span>
-            <select id="newItemCategory">
-              <option value="current">現在について</option>
-              <option value="previous">過去について</option>
-              <option value="next">未来について</option>
-            </select>
-          </label>
-          <label class="full-field">
-            <span>詳細</span>
-            <textarea id="newItemDetail" rows="3" placeholder="確認内容、背景、次に必要な対応など"></textarea>
-          </label>
-          <label>
-            <span>担当</span>
-            <select id="newItemOwner">
-              <option value="">未設定</option>
-              <option value="client">顧客</option>
-              <option value="office">事務所</option>
-              <option value="staff">担当者</option>
-            </select>
-          </label>
-          <label>
-            <span>期限</span>
-            <input id="newItemDueDate" type="date">
-          </label>
-          <label>
-            <span>状態</span>
-            <select id="newItemStatus">
-              <option value="open">未着手</option>
-              <option value="in_progress">対応中</option>
-              <option value="done">完了</option>
-              <option value="on_hold">保留</option>
-              <option value="withdrawn">取り下げ</option>
-            </select>
-          </label>
-          <label>
-            <span>公開範囲</span>
-            <select id="newItemVisibility">
-              <option value="client">顧客共有</option>
-              <option value="internal">内部のみ</option>
-            </select>
-          </label>
-          <label class="checkbox-field">
-            <input id="newItemCarryForward" type="checkbox" checked>
-            <span>次月以降へ繰り越す</span>
-          </label>
-        </div>
-      </section>
-
       <div class="topic-tabs" role="tablist" aria-label="アジェンダカテゴリ">
         <button class="tab is-active" data-tab="previous" type="button">過去について</button>
         <button class="tab" data-tab="current" type="button">現在について</button>
@@ -252,6 +190,7 @@
           <p class="empty-note">開始後、前回JSONの未完了事項が「過去について」に自動表示されます。</p>
         </div>
         <div class="candidate-list" id="previousCandidates"></div>
+        <div class="topic-add-slot" data-item-entry-slot="previous"></div>
         <label class="full-field">
           <span>過去についての追加メモ</span>
           <textarea id="previousManual" rows="3" placeholder="過去実績、前回繰越、過年度からの変化など"></textarea>
@@ -267,6 +206,7 @@
           <button class="button button--compact add-topic-button" data-add-topic="current" type="button">このカテゴリで追加</button>
         </div>
         <div class="candidate-list" id="currentCandidates"></div>
+        <div class="topic-add-slot" data-item-entry-slot="current"></div>
         <label class="full-field">
           <span>現在についての追加メモ</span>
           <textarea id="currentManual" rows="3" placeholder="中間納税の納付額・納付時期、現在の資金繰り、相談事項など"></textarea>
@@ -282,6 +222,7 @@
           <button class="button button--compact add-topic-button" data-add-topic="next" type="button">このカテゴリで追加</button>
         </div>
         <div class="candidate-list" id="nextCandidates"></div>
+        <div class="topic-add-slot" data-item-entry-slot="next"></div>
         <label class="full-field">
           <span>未来についての追加メモ</span>
           <textarea id="nextManual" rows="3" placeholder="業績着地予測、短期経営計画、今後の打ち手、担当、期限など"></textarea>
@@ -479,6 +420,11 @@
 
   <template id="candidateTemplate">
     <article class="candidate-card">
+      <div class="candidate-card-actions">
+        <button class="button button--compact reorder-button" data-move-item="up" type="button" title="上へ移動">↑</button>
+        <button class="button button--compact reorder-button" data-move-item="down" type="button" title="下へ移動">↓</button>
+        <button class="button button--compact candidate-delete-button" type="button" hidden>削除</button>
+      </div>
       <label class="candidate-check">
         <input data-item-field="selected" type="checkbox">
         <span>今回扱う</span>
@@ -528,8 +474,66 @@
           <span>次月以降へ繰り越す</span>
         </label>
       </div>
-      <button class="button button--compact candidate-delete-button" type="button" hidden>削除</button>
     </article>
+  </template>
+
+  <template id="itemEntryTemplate">
+    <section class="item-entry-panel topic-item-entry" hidden>
+      <div class="category-head">
+        <div>
+          <h3 data-item-entry-title>新規事項追加</h3>
+          <p data-item-entry-description>このカテゴリに、今回扱うテーマを追加します。</p>
+        </div>
+        <button class="button button--subtle" data-item-entry-cancel type="button">閉じる</button>
+      </div>
+      <div class="field-grid item-entry-grid">
+        <label>
+          <span>タイトル</span>
+          <input data-new-item-field="title" type="text" autocomplete="off" placeholder="例：資料提出期限の確認">
+        </label>
+        <label>
+          <span>担当</span>
+          <select data-new-item-field="owner">
+            <option value="">未設定</option>
+            <option value="client">顧客</option>
+            <option value="office">事務所</option>
+            <option value="staff">担当者</option>
+          </select>
+        </label>
+        <label class="full-field">
+          <span>詳細</span>
+          <textarea data-new-item-field="detail" rows="3" placeholder="確認内容、背景、次に必要な対応など"></textarea>
+        </label>
+        <label>
+          <span>期限</span>
+          <input data-new-item-field="dueDate" type="date">
+        </label>
+        <label>
+          <span>状態</span>
+          <select data-new-item-field="status">
+            <option value="open">未着手</option>
+            <option value="in_progress">対応中</option>
+            <option value="done">完了</option>
+            <option value="on_hold">保留</option>
+            <option value="withdrawn">取り下げ</option>
+          </select>
+        </label>
+        <label>
+          <span>公開範囲</span>
+          <select data-new-item-field="visibility">
+            <option value="client">顧客共有</option>
+            <option value="internal">内部のみ</option>
+          </select>
+        </label>
+        <label class="checkbox-field">
+          <input data-new-item-field="carryForward" type="checkbox" checked>
+          <span>次月以降へ繰り越す</span>
+        </label>
+      </div>
+      <div class="topic-entry-actions">
+        <button class="button button--primary" data-add-agenda-item type="button">事項を追加</button>
+      </div>
+    </section>
   </template>
 
   <template id="internalNoteTemplate">

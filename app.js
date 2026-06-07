@@ -40,6 +40,12 @@ const categoryLabels = {
   next: "未来について"
 };
 
+const categoryEntryDescriptions = {
+  previous: "過去実績、前回繰越、過去の決定事項や宿題の実施状況に関する事項を追加します。",
+  current: "現在の資金繰り、納付予定、中間納税、相談事項に関する事項を追加します。",
+  next: "業績着地予測、短期経営計画、今後の打ち手や期限付き宿題に関する事項を追加します。"
+};
+
 const baseCandidates = {
   previous: [
     candidate("過去実績の振り返り", "前月まで、前期、過年度などの実績推移や変化を人が確認して整理する。", "基本テーマ"),
@@ -75,14 +81,6 @@ const formIds = [
   "monthMismatchReason",
   "exceptionReason",
   "exceptionDetail",
-  "newItemTitle",
-  "newItemDetail",
-  "newItemOwner",
-  "newItemDueDate",
-  "newItemStatus",
-  "newItemCarryForward",
-  "newItemVisibility",
-  "newItemCategory",
   "newInternalNoteTitle",
   "newInternalNoteDetail"
 ];
@@ -235,6 +233,22 @@ function updateItemStatus(itemId, status, items = []) {
   });
 }
 
+function moveItemWithinCategory(items = [], itemId, direction) {
+  const offset = direction === "up" ? -1 : direction === "down" ? 1 : 0;
+  if (!offset) return [...items];
+  const currentItem = items.find((item) => item.id === itemId);
+  if (!currentItem) return [...items];
+  const sameCategoryItems = items.filter((item) => item.category === currentItem.category);
+  const categoryIndex = sameCategoryItems.findIndex((item) => item.id === itemId);
+  const targetItem = sameCategoryItems[categoryIndex + offset];
+  if (!targetItem) return [...items];
+  const currentIndex = items.findIndex((item) => item.id === itemId);
+  const targetIndex = items.findIndex((item) => item.id === targetItem.id);
+  const nextItems = [...items];
+  [nextItems[currentIndex], nextItems[targetIndex]] = [nextItems[targetIndex], nextItems[currentIndex]];
+  return nextItems;
+}
+
 function buildClientFacingItems(items) {
   return (Array.isArray(items) ? items : []).filter((item) => item.visibility === "client");
 }
@@ -267,6 +281,7 @@ function uniqueId(prefix) {
 
 function init() {
   setDefaultDates();
+  renderItemEntryForms();
   bindEvents();
   resetNewItemDefaults();
   renderAll();
@@ -308,7 +323,6 @@ function bindEvents() {
   $("#clearPreviousJson").addEventListener("click", clearPreviousJson);
   $("#startWithPreviousJson").addEventListener("click", startWithPreviousJson);
   $("#startWithException").addEventListener("click", startWithException);
-  $("#addAgendaItem").addEventListener("click", addAgendaItem);
   $("#addInternalNote").addEventListener("click", addInternalNote);
   $("#generateStockSummary").addEventListener("click", generateStockSummary);
   $("#copyStockSummary").addEventListener("click", copyStockSummary);
@@ -332,7 +346,13 @@ function bindEvents() {
   $("#printInternalMemo").addEventListener("click", printInternalMemo);
 
   $$("[data-add-topic]").forEach((button) => {
-    button.addEventListener("click", () => focusNewItemForm(button.dataset.addTopic));
+    button.addEventListener("click", () => openItemEntryForm(button.dataset.addTopic));
+  });
+  $$("[data-add-agenda-item]").forEach((button) => {
+    button.addEventListener("click", () => addAgendaItem(button.dataset.category));
+  });
+  $$("[data-item-entry-cancel]").forEach((button) => {
+    button.addEventListener("click", () => closeItemEntryForm(button.dataset.category));
   });
 }
 
@@ -351,23 +371,65 @@ function setActiveTopic(topic) {
   $$("[data-topic-pane]").forEach((pane) => pane.classList.toggle("is-active", pane.dataset.topicPane === topic));
 }
 
-function focusNewItemForm(category) {
-  if (Object.prototype.hasOwnProperty.call(categoryLabels, category)) {
-    setValue("newItemCategory", category);
-  }
-  $("#newItemTitle")?.focus();
+function renderItemEntryForms() {
+  const template = $("#itemEntryTemplate");
+  if (!template) return;
+  Object.keys(categoryLabels).forEach((category) => {
+    const slot = $(`[data-item-entry-slot="${category}"]`);
+    if (!slot) return;
+    slot.innerHTML = "";
+    const section = template.content.firstElementChild.cloneNode(true);
+    section.dataset.itemEntrySection = category;
+    const title = section.querySelector("[data-item-entry-title]");
+    const description = section.querySelector("[data-item-entry-description]");
+    const addButton = section.querySelector("[data-add-agenda-item]");
+    const cancelButton = section.querySelector("[data-item-entry-cancel]");
+    if (title) title.textContent = `${categoryLabels[category]}に追加`;
+    if (description) description.textContent = categoryEntryDescriptions[category];
+    if (addButton) addButton.dataset.category = category;
+    if (cancelButton) cancelButton.dataset.category = category;
+    slot.appendChild(section);
+  });
 }
 
-function addAgendaItem() {
+function getItemEntrySection(category) {
+  if (!Object.prototype.hasOwnProperty.call(categoryLabels, category)) return null;
+  return $(`[data-item-entry-section="${category}"]`);
+}
+
+function openItemEntryForm(category) {
+  const section = getItemEntrySection(category);
+  if (!section) return;
+  setActiveTopic(category);
+  section.hidden = false;
+  section.querySelector("[data-new-item-field='title']")?.focus();
+}
+
+function closeItemEntryForm(category) {
+  const section = getItemEntrySection(category);
+  if (!section) return;
+  section.hidden = true;
+}
+
+function itemEntryValue(category, fieldName) {
+  return getItemEntrySection(category)?.querySelector(`[data-new-item-field="${fieldName}"]`)?.value.trim() || "";
+}
+
+function itemEntryChecked(category, fieldName) {
+  return getItemEntrySection(category)?.querySelector(`[data-new-item-field="${fieldName}"]`)?.checked ?? false;
+}
+
+function addAgendaItem(category = "current") {
+  if (!Object.prototype.hasOwnProperty.call(categoryLabels, category)) category = "current";
   const item = createNewItem({
-    title: valueOf("newItemTitle"),
-    detail: valueOf("newItemDetail"),
-    owner: valueOf("newItemOwner"),
-    dueDate: valueOf("newItemDueDate"),
-    status: valueOf("newItemStatus"),
-    carryForward: $("#newItemCarryForward")?.checked ?? true,
-    visibility: valueOf("newItemVisibility"),
-    category: valueOf("newItemCategory"),
+    title: itemEntryValue(category, "title"),
+    detail: itemEntryValue(category, "detail"),
+    owner: itemEntryValue(category, "owner"),
+    dueDate: itemEntryValue(category, "dueDate"),
+    status: itemEntryValue(category, "status"),
+    carryForward: itemEntryChecked(category, "carryForward"),
+    visibility: itemEntryValue(category, "visibility"),
+    category,
     source: "manual",
     sourceLabel: "手動追加",
     selected: true,
@@ -382,19 +444,24 @@ function addAgendaItem() {
   }
 
   state.items.push(item);
-  setValue("newItemTitle", "");
-  setValue("newItemDetail", "");
-  setValue("newItemOwner", "");
-  setValue("newItemDueDate", "");
-  resetNewItemDefaults();
+  resetItemEntryForm(category);
   state.exportMessage = "";
   renderAll();
   setActiveTopic(item.category);
+  openItemEntryForm(item.category);
 }
 
 function removeAgendaItem(itemId) {
   state.items = state.items.filter((item) => item.id !== itemId);
   renderAll();
+}
+
+function moveAgendaItem(itemId, direction) {
+  const item = state.items.find((entry) => entry.id === itemId);
+  if (!item) return;
+  state.items = moveItemWithinCategory(state.items, itemId, direction);
+  renderAll();
+  setActiveTopic(item.category);
 }
 
 function patchAgendaItem(itemId, changes, rerenderList = true) {
@@ -410,6 +477,23 @@ function patchAgendaItem(itemId, changes, rerenderList = true) {
     renderStatus();
     renderOutputs();
   }
+}
+
+function resetItemEntryForm(category, options = {}) {
+  const section = getItemEntrySection(category);
+  if (!section) return;
+  section.querySelector("[data-new-item-field='title']").value = "";
+  section.querySelector("[data-new-item-field='detail']").value = "";
+  section.querySelector("[data-new-item-field='owner']").value = "";
+  section.querySelector("[data-new-item-field='dueDate']").value = "";
+  section.querySelector("[data-new-item-field='status']").value = "open";
+  section.querySelector("[data-new-item-field='visibility']").value = "client";
+  section.querySelector("[data-new-item-field='carryForward']").checked = true;
+  if (options.hidden) section.hidden = true;
+}
+
+function resetAllItemEntryForms(options = {}) {
+  Object.keys(categoryLabels).forEach((category) => resetItemEntryForm(category, options));
 }
 
 function addInternalNote() {
@@ -520,13 +604,14 @@ function renderCandidates() {
     const container = $(`#${category}Candidates`);
     if (!container) return;
     container.innerHTML = "";
-    getCandidates(category).forEach((item) => {
-      container.appendChild(renderCandidateCard(category, item));
+    const items = getCandidates(category);
+    items.forEach((item, index) => {
+      container.appendChild(renderCandidateCard(category, item, index, items.length));
     });
   });
 }
 
-function renderCandidateCard(category, item) {
+function renderCandidateCard(category, item, index = 0, total = 0) {
   const template = $("#candidateTemplate");
   const card = template.content.firstElementChild.cloneNode(true);
   const enabledInput = card.querySelector("[data-item-field='selected']");
@@ -539,6 +624,8 @@ function renderCandidateCard(category, item) {
   const carryForwardInput = card.querySelector("[data-item-field='carryForward']");
   const visibilityInput = card.querySelector("[data-item-field='visibility']");
   const deleteButton = card.querySelector(".candidate-delete-button");
+  const moveUpButton = card.querySelector("[data-move-item='up']");
+  const moveDownButton = card.querySelector("[data-move-item='down']");
   const closed = CLOSED_STATUSES.includes(item.status);
 
   enabledInput.checked = item.selected !== false;
@@ -554,6 +641,8 @@ function renderCandidateCard(category, item) {
   card.classList.toggle("is-internal", item.visibility === "internal");
   card.classList.toggle("is-closed", closed);
   source.textContent = `${categoryLabels[category]} / ${sourceText(item)} / ${visibilityLabels[item.visibility]}`;
+  moveUpButton.disabled = index === 0;
+  moveDownButton.disabled = index >= total - 1;
 
   enabledInput.addEventListener("change", () => {
     patchAgendaItem(item.id, { selected: enabledInput.checked });
@@ -580,6 +669,8 @@ function renderCandidateCard(category, item) {
   visibilityInput.addEventListener("change", () => {
     patchAgendaItem(item.id, { visibility: visibilityInput.value });
   });
+  moveUpButton.addEventListener("click", () => moveAgendaItem(item.id, "up"));
+  moveDownButton.addEventListener("click", () => moveAgendaItem(item.id, "down"));
 
   if (item.custom || item.source === "manual") {
     deleteButton.hidden = false;
@@ -1690,11 +1781,7 @@ function clearDraft() {
 }
 
 function resetNewItemDefaults() {
-  setValue("newItemCategory", "current");
-  setValue("newItemStatus", "open");
-  setValue("newItemVisibility", "client");
-  const carryForward = $("#newItemCarryForward");
-  if (carryForward) carryForward.checked = true;
+  resetAllItemEntryForms({ hidden: true });
 }
 
 async function copyText(sourceSelector, buttonSelector, originalLabel) {
@@ -1793,6 +1880,7 @@ if (typeof window !== "undefined") {
     isCarryForwardEligible,
     createNewItem,
     updateItemStatus,
+    moveItemWithinCategory,
     buildClientFacingItems,
     buildInternalItems,
     buildClientFacingOutput,

@@ -742,7 +742,7 @@ button:focus-visible {
 
 .meta-grid {
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 8px;
 }
 
@@ -952,6 +952,7 @@ footer.mk-mini a {
   body.print-client-summary [data-step-panel="agenda"],
   body.print-client-summary [data-step-panel="result"],
   body.print-client-summary .internal-summary,
+  body.print-client-summary .stock-summary-panel,
   body.print-client-summary .panel-head,
   body.print-client-summary .output-actions {
     display: none;
@@ -965,6 +966,7 @@ footer.mk-mini a {
   body.print-internal-memo [data-step-panel="agenda"],
   body.print-internal-memo [data-step-panel="result"],
   body.print-internal-memo .client-summary,
+  body.print-internal-memo .stock-summary-panel,
   body.print-internal-memo .panel-head,
   body.print-internal-memo .output-actions {
     display: none;
@@ -987,6 +989,27 @@ footer.mk-mini a {
   body.print-client-summary .summary-grid,
   body.print-internal-memo .summary-grid {
     display: block;
+  }
+
+  body.print-client-summary .meta-grid,
+  body.print-internal-memo .meta-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 6px;
+  }
+
+  body.print-client-summary .meta-grid article,
+  body.print-internal-memo .meta-grid article {
+    padding: 6px 8px;
+  }
+
+  body.print-client-summary .meta-grid span,
+  body.print-internal-memo .meta-grid span {
+    font-size: 10px;
+  }
+
+  body.print-client-summary .meta-grid strong,
+  body.print-internal-memo .meta-grid strong {
+    font-size: 12px;
   }
 
   body.print-client-summary .client-summary,

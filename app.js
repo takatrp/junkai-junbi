@@ -1068,7 +1068,7 @@ function createClientSummaryHtml() {
   const groups = groupedItems(buildClientFacingItems(collectItems()));
   return `
     <section class="document-paper">
-      ${documentHero("Client Agenda", `${formatTargetMonth(valueOf("targetMonth")) || "対象月未設定"} 月次面談アジェンダ`)}
+      ${documentHero("Client Agenda", documentTitle("月次面談アジェンダ"))}
       ${metaSection()}
       ${documentSection("今回の面談で必ず扱うテーマ", paragraphOrEmpty(valueOf("meetingAim")))}
       ${documentSection("過去について", htmlList(groups.previous, valueOf("previousManual")))}
@@ -1083,8 +1083,8 @@ function createInternalMemoHtml() {
   const groups = groupedItems(internal.items);
   return `
     <section class="document-paper">
-      ${documentHero("Internal Memo", `${formatTargetMonth(valueOf("targetMonth")) || "対象月未設定"} 内部用メモ`)}
-      ${metaSection(true)}
+      ${documentHero("Internal Memo", documentTitle("内部用メモ"))}
+      ${metaSection()}
       ${documentSection("アジェンダ（過去・現在・未来）", htmlList([...groups.previous, ...groups.current, ...groups.next], [
         valueOf("previousManual"),
         valueOf("currentManual"),
@@ -1099,6 +1099,12 @@ function createInternalMemoHtml() {
   `;
 }
 
+function documentTitle(suffix) {
+  const month = formatTargetMonth(valueOf("targetMonth")) || "対象月未設定";
+  const clientName = valueOf("clientName");
+  return `${clientName ? `${clientName} 様 ` : ""}${month} ${suffix}`;
+}
+
 function documentHero(kicker, title) {
   return `
     <header class="document-hero">
@@ -1108,14 +1114,11 @@ function documentHero(kicker, title) {
   `;
 }
 
-function metaSection(includeParticipants = false) {
+function metaSection() {
   const entries = [
     ["面談日", valueOf("meetingDate") || "-"],
-    ["担当", valueOf("staffName") || "-"],
-    ["顧客コード", valueOf("clientCode") || "-"],
     ["対象月", valueOf("targetMonth") || "-"]
   ];
-  if (includeParticipants) entries.push(["参加者", valueOf("participants") || "-"]);
   return `
     <section class="document-section">
       <div class="meta-grid">

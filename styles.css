@@ -851,6 +851,18 @@ button:focus-visible {
   font-weight: 700;
 }
 
+footer.mk-mini {
+  margin: 0 auto;
+  padding: 8px 24px 26px;
+  color: var(--muted);
+  font-size: 12px;
+  text-align: center;
+}
+
+footer.mk-mini a {
+  color: inherit;
+}
+
 @media (max-width: 980px) {
   .app-header__inner,
   .summary-grid,
@@ -893,6 +905,7 @@ button:focus-visible {
   }
 
   body.print-client-summary .app-header,
+  body.print-client-summary .mk-mini,
   body.print-client-summary .status-strip,
   body.print-client-summary .flow-tabs,
   body.print-client-summary [data-step-panel="prep"],
@@ -905,6 +918,7 @@ button:focus-visible {
   }
 
   body.print-internal-memo .app-header,
+  body.print-internal-memo .mk-mini,
   body.print-internal-memo .status-strip,
   body.print-internal-memo .flow-tabs,
   body.print-internal-memo [data-step-panel="prep"],

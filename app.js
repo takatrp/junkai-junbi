@@ -35,26 +35,26 @@ const ownerLabels = {
 };
 
 const categoryLabels = {
-  previous: "前回から",
-  current: "今回確認",
-  next: "次回へ"
+  previous: "過去について",
+  current: "現在について",
+  next: "未来について"
 };
 
 const baseCandidates = {
   previous: [
-    candidate("前回宿題の進捗確認", "前回お願いした事項について、実行済み・途中・未着手を確認する。", "基本"),
-    candidate("前回決定事項の実施状況", "前回決めた対応が実行されているか、止まっている場合は理由を確認する。", "基本"),
-    candidate("面談後に変化したこと", "前回面談後に起きた変化や、共有しておきたい出来事を確認する。", "基本")
+    candidate("過去実績の振り返り", "前月まで、前期、過年度などの実績推移や変化を人が確認して整理する。", "基本テーマ"),
+    candidate("前回繰越事項の確認", "前回面談から持ち越した事項について、実行済み・途中・未着手を確認する。", "基本テーマ"),
+    candidate("過去の決定事項・宿題の実施状況", "過去に決めた対応や宿題が実行されているか、止まっている場合は理由を確認する。", "基本テーマ")
   ],
   current: [
-    candidate("今回共有する事項", "今回の面談で顧客と共有したい事項を整理する。", "基本"),
-    candidate("顧客側の相談事項", "顧客側から相談したいこと、気になっていることを確認する。", "基本"),
-    candidate("確認したい資料・数字", "今回確認したい資料や数字を、人が見て判断できる形で整理する。", "基本")
+    candidate("現在の資金繰り・納税予定の確認", "現在把握している資金繰り、納税予定、支払予定を人が確認して説明する。", "基本テーマ"),
+    candidate("中間納税の納付額・納付時期の説明", "通知書や申告情報など確認済み資料に基づき、納付額と納付時期を説明する。", "基本テーマ"),
+    candidate("現在の課題・相談事項", "顧客がいま困っていること、確認したいこと、判断材料が必要なことを整理する。", "基本テーマ")
   ],
   next: [
-    candidate("次回までの宿題整理", "誰が、いつまでに、何をするかを明確にする。", "基本"),
-    candidate("期限付きタスクの確認", "期限がある事項をStockタスクへ手動登録する前提で整理する。", "基本"),
-    candidate("次回面談で扱うテーマ", "次回に持ち越す確認事項や相談テーマを整理する。", "基本")
+    candidate("業績着地予測の確認", "今後の売上、利益、資金繰りの見通しを、根拠資料を見ながら確認する。", "基本テーマ"),
+    candidate("短期経営計画の確認", "今後数か月の目標、行動、資金需要、優先順位を整理する。", "基本テーマ"),
+    candidate("未来に向けた打ち手の整理", "採用、投資、借入、価格改定など、今後検討する打ち手を整理する。", "基本テーマ")
   ]
 };
 
@@ -601,14 +601,14 @@ function renderCarryForwardNotice() {
   if (!container) return;
   const count = state.items.filter((item) => item.source === "previous").length;
   if (!hasStarted()) {
-    container.innerHTML = `<p class="empty-note">開始後、前回JSONの未完了事項がここに自動表示されます。</p>`;
+    container.innerHTML = `<p class="empty-note">開始後、前回JSONの未完了事項が「過去について」に自動表示されます。</p>`;
     return;
   }
   if (state.start.startMode === "exception") {
     container.innerHTML = `<p class="empty-note">例外開始のため、前回JSONからの自動繰越はありません。</p>`;
     return;
   }
-  container.innerHTML = `<p>${count ? `${count}件の前回未完了事項を自動表示しています。` : "繰越対象の前回事項はありません。"}</p>`;
+  container.innerHTML = `<p>${count ? `${count}件の前回未完了事項を「過去について」に自動表示しています。` : "繰越対象の前回事項はありません。"}</p>`;
 }
 
 function renderInternalNotes() {
@@ -895,16 +895,16 @@ function createClientSummaryText() {
     `顧客名：${valueOf("clientName") || ""}`,
     `対象月：${valueOf("targetMonth") || ""}`,
     "",
-    "■ 今回の面談で必ず話すこと",
+    "■ 今回の面談で必ず扱うテーマ",
     valueOf("meetingAim") || "-",
     "",
-    "■ 前回からの確認",
+    "■ 過去について",
     ...textLines(groups.previous, valueOf("previousManual")),
     "",
-    "■ 今回確認事項",
+    "■ 現在について",
     ...textLines(groups.current, valueOf("currentManual")),
     "",
-    "■ 次回への確認事項",
+    "■ 未来について",
     ...textLines(groups.next, valueOf("nextManual"))
   ].join("\n");
 }
@@ -920,7 +920,7 @@ function createInternalMemoText() {
     `顧客名：${valueOf("clientName") || ""}`,
     `参加者：${valueOf("participants") || ""}`,
     "",
-    "■ アジェンダ",
+    "■ アジェンダ（過去・現在・未来）",
     ...textLines([...groups.previous, ...groups.current, ...groups.next], [
       valueOf("previousManual"),
       valueOf("currentManual"),
@@ -969,7 +969,7 @@ function itemMetaText(item) {
     item.owner ? `担当：${ownerLabels[item.owner] || item.owner}` : "",
     item.dueDate ? `期限：${item.dueDate}` : "",
     item.visibility === "internal" ? "内部のみ" : "",
-    item.carryForward ? "次回繰越" : "次回繰越なし"
+    item.carryForward ? "次月以降繰越" : "次月以降繰越なし"
   ].filter(Boolean).join(" / ");
 }
 
@@ -979,10 +979,10 @@ function createClientSummaryHtml() {
     <section class="document-paper">
       ${documentHero("Client Agenda", `${formatTargetMonth(valueOf("targetMonth")) || "対象月未設定"} 月次面談アジェンダ`)}
       ${metaSection()}
-      ${documentSection("今回の面談で必ず話すこと", paragraphOrEmpty(valueOf("meetingAim")))}
-      ${documentSection("前回からの確認", htmlList(groups.previous, valueOf("previousManual")))}
-      ${documentSection("今回確認事項", htmlList(groups.current, valueOf("currentManual")))}
-      ${documentSection("次回への確認事項", htmlList(groups.next, valueOf("nextManual")))}
+      ${documentSection("今回の面談で必ず扱うテーマ", paragraphOrEmpty(valueOf("meetingAim")))}
+      ${documentSection("過去について", htmlList(groups.previous, valueOf("previousManual")))}
+      ${documentSection("現在について", htmlList(groups.current, valueOf("currentManual")))}
+      ${documentSection("未来について", htmlList(groups.next, valueOf("nextManual")))}
     </section>
   `;
 }
@@ -994,7 +994,7 @@ function createInternalMemoHtml() {
     <section class="document-paper">
       ${documentHero("Internal Memo", `${formatTargetMonth(valueOf("targetMonth")) || "対象月未設定"} 内部用メモ`)}
       ${metaSection(true)}
-      ${documentSection("アジェンダ", htmlList([...groups.previous, ...groups.current, ...groups.next], [
+      ${documentSection("アジェンダ（過去・現在・未来）", htmlList([...groups.previous, ...groups.current, ...groups.next], [
         valueOf("previousManual"),
         valueOf("currentManual"),
         valueOf("nextManual")
@@ -1100,8 +1100,8 @@ function buildStockSummary(summaryState) {
     `対象月：${summaryState.targetMonth || ""}`,
     `開始方法：${startModeText(summaryState.startInfo)}`,
     "",
-    "■ 今回確認事項",
-    ...stockItemLines(groups.confirmationItems),
+    "■ 今回確認事項（過去・現在・未来）",
+    ...stockCategorizedItemLines(groups.confirmationItemsByCategory),
     "",
     "■ 決定事項",
     ...textBlockLines(summaryState.decisions),
@@ -1132,12 +1132,28 @@ function groupItemsForStockSummary(items, internalNotes) {
   const internalItems = (Array.isArray(items) ? items : []).filter((item) => item.visibility === "internal");
   return {
     confirmationItems: visibleItems,
+    confirmationItemsByCategory: {
+      previous: visibleItems.filter((item) => item.category === "previous"),
+      current: visibleItems.filter((item) => item.category === "current" || !item.category),
+      next: visibleItems.filter((item) => item.category === "next")
+    },
     carryForwardItems: visibleItems.filter(isCarryForwardEligible),
     clientHomeworkItems: visibleItems.filter((item) => item.owner === "client"),
     officeHomeworkItems: visibleItems.filter((item) => ["office", "staff"].includes(item.owner)),
     internalItems,
     internalNotes: buildInternalNotes(internalNotes)
   };
+}
+
+function stockCategorizedItemLines(itemsByCategory) {
+  const lines = [];
+  ["previous", "current", "next"].forEach((category) => {
+    const items = itemsByCategory?.[category] || [];
+    if (!items.length) return;
+    lines.push(`- ${categoryLabels[category]}`);
+    stockItemLines(items).forEach((line) => lines.push(`  ${line}`));
+  });
+  return lines.length ? lines : ["-"];
 }
 
 function stockItemLines(items) {
@@ -1639,10 +1655,10 @@ function loadSample() {
   setValue("clientName", "サンプル顧客");
   setValue("staffName", "サンプル担当者");
   setValue("participants", "代表者、経理担当");
-  setValue("meetingAim", "前回宿題の確認と、次回までの対応事項の整理");
-  setValue("decisions", "次回までに必要資料を確認する。");
-  setValue("clientHomework", "必要資料を確認し、期限までに共有する。");
-  setValue("officeHomework", "面談メモを整理し、次回繰越事項を確認する。");
+  setValue("meetingAim", "過去実績、現在の納付予定、未来の着地予測を整理する。");
+  setValue("decisions", "業績着地予測に必要な前提条件を次回までに確認する。");
+  setValue("clientHomework", "必要資料と納付予定を確認し、期限までに共有する。");
+  setValue("officeHomework", "過去実績と短期経営計画の論点を整理し、次回繰越事項を確認する。");
   state.items = createInitialAgendaItems();
   state.internalNotes = [
     createInternalNote({
@@ -1652,7 +1668,7 @@ function loadSample() {
   ];
   state.start = emptyStartState();
   state.items = state.items.map((item) => {
-    const selected = item.title.includes("宿題") || item.title.includes("共有") || item.title.includes("次回");
+    const selected = item.title.includes("過去") || item.title.includes("中間納税") || item.title.includes("業績着地");
     return { ...item, selected };
   });
   state.stockSummaryText = "";

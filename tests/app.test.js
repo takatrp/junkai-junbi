@@ -188,7 +188,8 @@ test("Stock貼付用要約とJSON出力: 必要項目・ファイル名・再読
   assert.ok(summary.includes("面談日：2026-06-07"));
   assert.ok(summary.includes("担当：サンプル担当者"));
   assert.ok(summary.includes("対象顧客コード：TEST001"));
-  assert.ok(summary.includes("■ 今回確認事項"));
+  assert.ok(summary.includes("■ 今回確認事項（過去・現在・未来）"));
+  assert.ok(summary.includes("- 過去について"));
   assert.ok(summary.includes("■ 決定事項"));
   assert.ok(summary.includes("■ 次回繰越事項"));
   assert.ok(summary.includes("■ 顧客側の宿題"));

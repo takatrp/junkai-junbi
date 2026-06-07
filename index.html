@@ -103,8 +103,8 @@
       </div>
 
       <label class="full-field">
-        <span>今回の面談で必ず話すこと</span>
-        <textarea id="meetingAim" rows="3" placeholder="例：前回宿題の確認、今回の共有事項、次回までの宿題整理"></textarea>
+        <span>今回の面談で必ず扱うテーマ</span>
+        <textarea id="meetingAim" rows="3" placeholder="例：過去実績の振り返り、現在の納付予定、未来の着地予測を整理する"></textarea>
       </label>
 
       <section class="json-panel" aria-labelledby="previousJsonTitle">
@@ -176,7 +176,7 @@
         <div class="category-head">
           <div>
             <h3 id="newItemTitleLabel">新規事項追加</h3>
-            <p>今回新たに発生した事項を、担当・期限・状態・公開範囲と一緒に追加します。</p>
+            <p>今回扱うテーマを、担当・期限・状態・公開範囲と一緒に追加します。</p>
           </div>
           <button class="button button--primary" id="addAgendaItem" type="button">事項を追加</button>
         </div>
@@ -188,9 +188,9 @@
           <label>
             <span>表示カテゴリ</span>
             <select id="newItemCategory">
-              <option value="current">今回確認</option>
-              <option value="previous">前回から</option>
-              <option value="next">次回へ</option>
+              <option value="current">現在について</option>
+              <option value="previous">過去について</option>
+              <option value="next">未来について</option>
             </select>
           </label>
           <label class="full-field">
@@ -229,62 +229,62 @@
           </label>
           <label class="checkbox-field">
             <input id="newItemCarryForward" type="checkbox" checked>
-            <span>次回へ繰り越す</span>
+            <span>次月以降へ繰り越す</span>
           </label>
         </div>
       </section>
 
       <div class="topic-tabs" role="tablist" aria-label="アジェンダカテゴリ">
-        <button class="tab is-active" data-tab="previous" type="button">前回から</button>
-        <button class="tab" data-tab="current" type="button">今回確認</button>
-        <button class="tab" data-tab="next" type="button">次回へ</button>
+        <button class="tab is-active" data-tab="previous" type="button">過去について</button>
+        <button class="tab" data-tab="current" type="button">現在について</button>
+        <button class="tab" data-tab="next" type="button">未来について</button>
       </div>
 
       <div class="topic-pane is-active" data-topic-pane="previous">
         <div class="category-head">
           <div>
-            <h3>前回からの繰越事項</h3>
-            <p>前回JSONの未完了事項と、必要に応じて追加する確認事項を整理します。</p>
+            <h3>過去について</h3>
+            <p>過去実績、前回JSONからの繰越、過去の決定事項や宿題の実施状況を整理します。</p>
           </div>
           <button class="button button--compact add-topic-button" data-add-topic="previous" type="button">このカテゴリで追加</button>
         </div>
         <div id="carryForwardNotice" class="json-result json-result--compact">
-          <p class="empty-note">開始後、前回JSONの未完了事項がここに自動表示されます。</p>
+          <p class="empty-note">開始後、前回JSONの未完了事項が「過去について」に自動表示されます。</p>
         </div>
         <div class="candidate-list" id="previousCandidates"></div>
         <label class="full-field">
-          <span>前回からの追加メモ</span>
-          <textarea id="previousManual" rows="3" placeholder="前回宿題、未完了事項、面談後の変化など"></textarea>
+          <span>過去についての追加メモ</span>
+          <textarea id="previousManual" rows="3" placeholder="過去実績、前回繰越、過年度からの変化など"></textarea>
         </label>
       </div>
 
       <div class="topic-pane" data-topic-pane="current">
         <div class="category-head">
           <div>
-            <h3>今回確認</h3>
-            <p>今回共有したい事項、相談事項、確認したい資料を整理します。</p>
+            <h3>現在について</h3>
+            <p>現在の資金繰り、納付予定、相談事項、いま確認したい資料を整理します。</p>
           </div>
           <button class="button button--compact add-topic-button" data-add-topic="current" type="button">このカテゴリで追加</button>
         </div>
         <div class="candidate-list" id="currentCandidates"></div>
         <label class="full-field">
-          <span>今回確認の追加メモ</span>
-          <textarea id="currentManual" rows="3" placeholder="今回確認したいこと、顧客からの相談、共有事項など"></textarea>
+          <span>現在についての追加メモ</span>
+          <textarea id="currentManual" rows="3" placeholder="中間納税の納付額・納付時期、現在の資金繰り、相談事項など"></textarea>
         </label>
       </div>
 
       <div class="topic-pane" data-topic-pane="next">
         <div class="category-head">
           <div>
-            <h3>次回へ</h3>
-            <p>次回までの宿題、期限、担当を整理します。</p>
+            <h3>未来について</h3>
+            <p>業績着地予測、短期経営計画、今後の打ち手や期限付き宿題を整理します。</p>
           </div>
           <button class="button button--compact add-topic-button" data-add-topic="next" type="button">このカテゴリで追加</button>
         </div>
         <div class="candidate-list" id="nextCandidates"></div>
         <label class="full-field">
-          <span>次回への追加メモ</span>
-          <textarea id="nextManual" rows="3" placeholder="次回までに確認したいこと、担当、期限など"></textarea>
+          <span>未来についての追加メモ</span>
+          <textarea id="nextManual" rows="3" placeholder="業績着地予測、短期経営計画、今後の打ち手、担当、期限など"></textarea>
         </label>
       </div>
     </section>
@@ -469,6 +469,14 @@
     </section>
   </main>
 
+  <footer class="mk-mini">
+    © 2026
+    <a href="https://www.matsumoto-kaikei.or.jp/" target="_blank" rel="noopener license">税理士法人松本会計事務所</a>
+    ｜ <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank" rel="license noopener">CC BY-NC-SA 4.0</a>
+    ｜ <a href="/tool-portal/terms.html" target="_blank" rel="noopener">利用条件</a>
+    ｜ <span id="build-rev">R008</span>（最終更新日: <span id="last-updated-date">2026-06-07</span>）
+  </footer>
+
   <template id="candidateTemplate">
     <article class="candidate-card">
       <label class="candidate-check">
@@ -517,7 +525,7 @@
         </label>
         <label class="checkbox-field">
           <input data-item-field="carryForward" type="checkbox">
-          <span>次回へ繰り越す</span>
+          <span>次月以降へ繰り越す</span>
         </label>
       </div>
       <button class="button button--compact candidate-delete-button" type="button" hidden>削除</button>

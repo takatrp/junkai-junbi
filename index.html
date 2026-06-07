@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>月次巡回監査 面談準備ツール</title>
+  <title>Stock正本 月次面談アジェンダ管理ツール</title>
   <link rel="icon" type="image/png" href="for%20staff.png">
   <link rel="stylesheet" href="styles.css">
 </head>
@@ -12,255 +12,292 @@
     <div class="app-header__inner">
       <div class="app-brand">
         <img class="app-logo" src="for%20staff.png" alt="" aria-hidden="true">
-        <h1>月次巡回監査 面談準備ツール</h1>
+        <h1>Stock正本 月次面談アジェンダ管理ツール</h1>
       </div>
       <div class="header-actions">
         <button class="button button--subtle" id="loadSample" type="button">サンプル</button>
         <button class="button button--subtle" id="clearDraft" type="button">初期化</button>
-        <button class="button button--subtle" id="exportJson" type="button">JSON保存</button>
-        <button class="button button--subtle" id="importJson" type="button">JSON読込</button>
+        <button class="button button--subtle" id="exportJson" type="button">JSON出力</button>
+        <button class="button button--subtle" id="importJson" type="button">前回JSON読込</button>
         <button class="button button--primary" id="printClientSummary" type="button">共有用印刷</button>
-        <input id="jsonImportInput" type="file" accept="application/json,.json" hidden>
       </div>
     </div>
   </header>
 
   <main class="app-shell">
-    <section class="status-strip" aria-label="準備状況">
+    <section class="status-strip" aria-label="作成状況">
       <article class="status-card">
-        <span>対象</span>
-        <strong id="statusEntity">未設定</strong>
+        <span>顧客コード</span>
+        <strong id="statusClientCode">未設定</strong>
       </article>
       <article class="status-card">
-        <span>巡回月</span>
-        <strong id="statusAuditMonth">-</strong>
+        <span>対象月</span>
+        <strong id="statusTargetMonth">未設定</strong>
       </article>
       <article class="status-card">
-        <span>指示事項</span>
-        <strong id="statusInstructionCount">0件</strong>
+        <span>前回JSON</span>
+        <strong id="statusPreviousJson">未読込</strong>
       </article>
       <article class="status-card">
-        <span>面談論点</span>
-        <strong id="statusTopicCount">0件</strong>
+        <span>選択項目</span>
+        <strong id="statusItemCount">0件</strong>
+      </article>
+      <article class="status-card">
+        <span>出力JSON</span>
+        <strong id="statusJsonName">未出力</strong>
       </article>
     </section>
 
     <nav class="flow-tabs" aria-label="作業ステップ">
       <button class="flow-tab is-active" data-step="prep" type="button">
         <span>01</span>
-        巡回準備
-      </button>
-      <button class="flow-tab" data-step="data" type="button">
-        <span>02</span>
-        月次データ
+        基本情報
       </button>
       <button class="flow-tab" data-step="agenda" type="button">
-        <span>03</span>
+        <span>02</span>
         アジェンダ
       </button>
-      <button class="flow-tab" data-step="print" type="button">
-        <span>04</span>
-        印刷・共有
+      <button class="flow-tab" data-step="output" type="button">
+        <span>03</span>
+        出力
       </button>
       <button class="flow-tab" data-step="result" type="button">
-        <span>05</span>
-        結果保存
+        <span>04</span>
+        面談結果
       </button>
     </nav>
 
-    <section class="workspace-grid">
-      <section class="panel audit-panel step-panel is-active" data-step-panel="prep" aria-labelledby="auditPrepTitle">
-        <div class="panel-head">
+    <section class="panel step-panel is-active" data-step-panel="prep" aria-labelledby="prepTitle">
+      <div class="panel-head">
+        <div>
+          <p class="section-kicker">01</p>
+          <h2 id="prepTitle">基本情報</h2>
+        </div>
+      </div>
+
+      <div class="field-grid">
+        <label>
+          <span>顧客コード</span>
+          <input id="clientCode" type="text" autocomplete="off" placeholder="例：C001">
+        </label>
+        <label>
+          <span>顧客名（任意）</span>
+          <input id="clientName" type="text" autocomplete="off" placeholder="空欄でも運用可能">
+        </label>
+        <label>
+          <span>対象月</span>
+          <input id="targetMonth" type="month">
+        </label>
+        <label>
+          <span>面談日</span>
+          <input id="meetingDate" type="date">
+        </label>
+        <label>
+          <span>担当者</span>
+          <input id="staffName" type="text" autocomplete="off" placeholder="担当者名">
+        </label>
+        <label>
+          <span>参加者</span>
+          <input id="participants" type="text" autocomplete="off" placeholder="代表者、経理担当など">
+        </label>
+      </div>
+
+      <label class="full-field">
+        <span>今回の面談で必ず話すこと</span>
+        <textarea id="meetingAim" rows="3" placeholder="例：前回宿題の確認、今回の共有事項、次回までの宿題整理"></textarea>
+      </label>
+
+      <section class="json-panel" aria-labelledby="previousJsonTitle">
+        <div class="json-panel-head">
           <div>
-            <p class="section-kicker">01</p>
-            <h2 id="auditPrepTitle">巡回監査準備</h2>
+            <p class="section-kicker">Previous JSON</p>
+            <h3 id="previousJsonTitle">前回JSON読込</h3>
           </div>
+          <button class="button button--subtle" id="clearPreviousJson" type="button">読込結果をクリア</button>
         </div>
-
-        <div class="field-grid audit-field-grid">
-          <fieldset class="entity-type-field">
-            <legend>区分</legend>
-            <label class="radio-card">
-              <input type="radio" name="entityType" value="corporate" checked>
-              <span>法人</span>
-            </label>
-            <label class="radio-card">
-              <input type="radio" name="entityType" value="individual">
-              <span>個人</span>
-            </label>
-          </fieldset>
-          <label class="client-name-field">
-            <span>法人名・屋号</span>
-            <input id="clientName" type="text" placeholder="株式会社〇〇 / 〇〇商店">
-          </label>
-          <div class="audit-meta-grid">
-            <label>
-              <span>決算月</span>
-              <select id="fiscalMonth"></select>
-            </label>
-            <label>
-              <span>訪問月</span>
-              <select id="visitMonth"></select>
-            </label>
-            <label>
-              <span>訪問日</span>
-              <input id="visitDate" type="date">
-            </label>
-            <label>
-              <span>参加者</span>
-              <input id="participants" type="text" placeholder="社長、経理担当、松本会計">
-            </label>
-          </div>
+        <label class="json-file-field">
+          <span>Stockノートに添付された前回JSONを選択</span>
+          <input id="previousJsonInput" type="file" accept="application/json,.json">
+        </label>
+        <div id="previousJsonResult" class="json-result">
+          <p class="empty-note">前回JSONを選択すると、検証結果がここに表示されます。</p>
         </div>
-
-        <div class="instruction-result">
-          <div>
-            <p class="result-label">自動判定</p>
-            <h3 id="auditMonthTitle">決算月と訪問月を選択してください</h3>
-            <p id="auditMonthDescription">訪問月が決算月の翌月なら1か月目、決算月なら12か月目です。</p>
-          </div>
-          <a class="pdf-link" id="pdfLink" href="./所長の指示事項 法人.pdf" target="_blank" rel="noopener">PDF原本を開く</a>
+        <label class="full-field" id="monthMismatchReasonField" hidden>
+          <span>前月以外のJSONで進む理由</span>
+          <textarea id="monthMismatchReason" rows="3" placeholder="例：前回面談がスキップされたため、2か月前のJSONを使用する"></textarea>
+        </label>
+        <div class="gate-actions">
+          <button class="button button--primary" id="startWithPreviousJson" type="button">前回JSONで開始</button>
         </div>
-
-        <div class="instruction-list" id="instructionList"></div>
-
-        <details class="pdf-viewer">
-          <summary>所長指示PDFを画面内で確認</summary>
-          <iframe id="pdfFrame" title="所長の指示事項 PDF" src="./所長の指示事項 法人.pdf#page=1&zoom=page-width"></iframe>
-        </details>
+        <div id="startGateMessage" class="json-result json-result--compact">
+          <p class="empty-note">顧客コード・対象月を入力し、前回JSONを読み込むと通常ルートで開始できます。</p>
+        </div>
       </section>
 
-      <section class="panel data-panel step-panel" data-step-panel="data" aria-labelledby="monthlyDataTitle">
-        <div class="panel-head">
+      <section class="json-panel" aria-labelledby="exceptionStartTitle">
+        <div class="json-panel-head">
           <div>
-            <p class="section-kicker">02</p>
-            <h2 id="monthlyDataTitle">月次データ取込</h2>
+            <p class="section-kicker">Exception Start</p>
+            <h3 id="exceptionStartTitle">前回JSONなしで開始</h3>
           </div>
         </div>
-
-        <div class="data-option-grid">
+        <div class="field-grid">
           <label>
-            <span>棚卸の有無（アラート判定）</span>
-            <select id="inventoryFlag">
-              <option value="with">棚卸あり（製造・小売・卸など）</option>
-              <option value="without">棚卸なし（イベント・サービス業など）</option>
+            <span>例外理由</span>
+            <select id="exceptionReason">
+              <option value="">選択してください</option>
+              <option value="初回作成">初回作成</option>
+              <option value="新規関与">新規関与</option>
+              <option value="前回面談なし">前回面談なし</option>
+              <option value="データ移行前">データ移行前</option>
+              <option value="その他">その他</option>
             </select>
           </label>
-        </div>
-
-        <div class="file-grid file-grid--three">
-          <label class="file-field">
-            <span>勘定科目残高推移表 CSV</span>
-            <input id="balanceCsvInput" type="file" accept=".csv,text/csv">
-          </label>
-          <label class="file-field">
-            <span>利益管理表（365日変動損益計算書）CSV</span>
-            <input id="profitPlanCsvInput" type="file" accept=".csv,text/csv">
-          </label>
-          <label class="file-field">
-            <span>変動損益計算書推移表 CSV</span>
-            <input id="profitTrendCsvInput" type="file" accept=".csv,text/csv">
+          <label>
+            <span>理由詳細</span>
+            <textarea id="exceptionDetail" rows="3" placeholder="前回JSONなしで開始する理由を具体的に入力してください"></textarea>
           </label>
         </div>
-
-        <div class="data-status-grid">
-          <article>
-            <span>残高推移</span>
-            <strong id="balanceImportStatus">未取込</strong>
-          </article>
-          <article>
-            <span>利益管理表</span>
-            <strong id="profitPlanImportStatus">未取込</strong>
-          </article>
-          <article>
-            <span>変動損益推移</span>
-            <strong id="profitTrendImportStatus">未取込</strong>
-          </article>
-        </div>
-
-        <div class="monthly-suggestion-panel">
-          <h3>カンニングペーパーに入れる月次ポイント</h3>
-          <div id="monthlySuggestionList" class="monthly-suggestion-list">
-            <p class="empty-note">CSVを取り込むと、伝えるべきポイントを自動で表示します。</p>
-          </div>
-        </div>
-      </section>
-
-      <section class="panel topic-panel step-panel" data-step-panel="agenda" aria-labelledby="topicTitle">
-        <div class="panel-head">
-          <div>
-            <p class="section-kicker">03</p>
-            <h2 id="topicTitle">面談アジェンダの作成</h2>
-          </div>
-        </div>
-
-        <label class="full-field">
-          <span>今回の面談で必ず話すこと</span>
-          <textarea id="meetingAim" rows="3" placeholder="例：月次の着地、資金繰り、決算までの注意点、前回宿題の確認"></textarea>
-        </label>
-
-        <div class="topic-tabs" role="tablist" aria-label="面談カテゴリ">
-          <button class="tab is-active" data-tab="past" type="button">過去</button>
-          <button class="tab" data-tab="present" type="button">現在</button>
-          <button class="tab" data-tab="future" type="button">未来</button>
-        </div>
-
-        <div class="topic-pane is-active" data-topic-pane="past">
-          <div class="category-head">
-            <div>
-              <h3>過去：経緯と前回宿題</h3>
-              <p>前回からの変化、未完了事項、過去の判断の結果を確認します。</p>
-            </div>
-            <button class="button button--compact add-topic-button" data-add-topic="past" type="button">項目を追加</button>
-          </div>
-          <div class="candidate-list" id="pastCandidates"></div>
-          <label class="full-field">
-            <span>過去の追加メモ</span>
-            <textarea id="pastManual" rows="3" placeholder="前回宿題、前月からの変化、確認済み事項など"></textarea>
-          </label>
-        </div>
-
-        <div class="topic-pane" data-topic-pane="present">
-          <div class="category-head">
-            <div>
-              <h3>現在：月次数値と監査確認</h3>
-              <p>月次試算表、資金、税務手続、所長指示の該当項目を確認します。</p>
-            </div>
-            <button class="button button--compact add-topic-button" data-add-topic="present" type="button">項目を追加</button>
-          </div>
-          <div class="candidate-list" id="presentCandidates"></div>
-          <label class="full-field">
-            <span>現在の追加メモ</span>
-            <textarea id="presentManual" rows="3" placeholder="今月の数字、資金繰り、税務確認、社長の関心など"></textarea>
-          </label>
-        </div>
-
-        <div class="topic-pane" data-topic-pane="future">
-          <div class="category-head">
-            <div>
-              <h3>未来：決算・納税・次の打ち手</h3>
-              <p>決算着地、納税、投資・採用・承継など、次に判断することへつなげます。</p>
-            </div>
-            <button class="button button--compact add-topic-button" data-add-topic="future" type="button">項目を追加</button>
-          </div>
-          <div class="candidate-list" id="futureCandidates"></div>
-          <label class="full-field">
-            <span>未来の追加メモ</span>
-            <textarea id="futureManual" rows="3" placeholder="次回までに確認したいこと、決算までの打ち手、次の提案など"></textarea>
-          </label>
+        <div class="gate-actions">
+          <button class="button button--subtle" id="startWithException" type="button">前回JSONなしで開始</button>
         </div>
       </section>
     </section>
 
-    <section class="panel output-panel step-panel" data-step-panel="print" aria-labelledby="outputTitle">
+    <section class="panel step-panel" data-step-panel="agenda" aria-labelledby="agendaTitle">
       <div class="panel-head">
         <div>
-          <p class="section-kicker">04</p>
-          <h2 id="outputTitle">共有用アジェンダ・カンニングペーパー</h2>
+          <p class="section-kicker">02</p>
+          <h2 id="agendaTitle">アジェンダ作成</h2>
+        </div>
+      </div>
+
+      <section class="item-entry-panel" aria-labelledby="newItemTitleLabel">
+        <div class="category-head">
+          <div>
+            <h3 id="newItemTitleLabel">新規事項追加</h3>
+            <p>今回新たに発生した事項を、担当・期限・状態・公開範囲と一緒に追加します。</p>
+          </div>
+          <button class="button button--primary" id="addAgendaItem" type="button">事項を追加</button>
+        </div>
+        <div class="field-grid item-entry-grid">
+          <label>
+            <span>タイトル</span>
+            <input id="newItemTitle" type="text" autocomplete="off" placeholder="例：資料提出期限の確認">
+          </label>
+          <label>
+            <span>表示カテゴリ</span>
+            <select id="newItemCategory">
+              <option value="current">今回確認</option>
+              <option value="previous">前回から</option>
+              <option value="next">次回へ</option>
+            </select>
+          </label>
+          <label class="full-field">
+            <span>詳細</span>
+            <textarea id="newItemDetail" rows="3" placeholder="確認内容、背景、次に必要な対応など"></textarea>
+          </label>
+          <label>
+            <span>担当</span>
+            <select id="newItemOwner">
+              <option value="">未設定</option>
+              <option value="client">顧客</option>
+              <option value="office">事務所</option>
+              <option value="staff">担当者</option>
+            </select>
+          </label>
+          <label>
+            <span>期限</span>
+            <input id="newItemDueDate" type="date">
+          </label>
+          <label>
+            <span>状態</span>
+            <select id="newItemStatus">
+              <option value="open">未着手</option>
+              <option value="in_progress">対応中</option>
+              <option value="done">完了</option>
+              <option value="on_hold">保留</option>
+              <option value="withdrawn">取り下げ</option>
+            </select>
+          </label>
+          <label>
+            <span>公開範囲</span>
+            <select id="newItemVisibility">
+              <option value="client">顧客共有</option>
+              <option value="internal">内部のみ</option>
+            </select>
+          </label>
+          <label class="checkbox-field">
+            <input id="newItemCarryForward" type="checkbox" checked>
+            <span>次回へ繰り越す</span>
+          </label>
+        </div>
+      </section>
+
+      <div class="topic-tabs" role="tablist" aria-label="アジェンダカテゴリ">
+        <button class="tab is-active" data-tab="previous" type="button">前回から</button>
+        <button class="tab" data-tab="current" type="button">今回確認</button>
+        <button class="tab" data-tab="next" type="button">次回へ</button>
+      </div>
+
+      <div class="topic-pane is-active" data-topic-pane="previous">
+        <div class="category-head">
+          <div>
+            <h3>前回からの繰越事項</h3>
+            <p>前回JSONの未完了事項と、必要に応じて追加する確認事項を整理します。</p>
+          </div>
+          <button class="button button--compact add-topic-button" data-add-topic="previous" type="button">このカテゴリで追加</button>
+        </div>
+        <div id="carryForwardNotice" class="json-result json-result--compact">
+          <p class="empty-note">開始後、前回JSONの未完了事項がここに自動表示されます。</p>
+        </div>
+        <div class="candidate-list" id="previousCandidates"></div>
+        <label class="full-field">
+          <span>前回からの追加メモ</span>
+          <textarea id="previousManual" rows="3" placeholder="前回宿題、未完了事項、面談後の変化など"></textarea>
+        </label>
+      </div>
+
+      <div class="topic-pane" data-topic-pane="current">
+        <div class="category-head">
+          <div>
+            <h3>今回確認</h3>
+            <p>今回共有したい事項、相談事項、確認したい資料を整理します。</p>
+          </div>
+          <button class="button button--compact add-topic-button" data-add-topic="current" type="button">このカテゴリで追加</button>
+        </div>
+        <div class="candidate-list" id="currentCandidates"></div>
+        <label class="full-field">
+          <span>今回確認の追加メモ</span>
+          <textarea id="currentManual" rows="3" placeholder="今回確認したいこと、顧客からの相談、共有事項など"></textarea>
+        </label>
+      </div>
+
+      <div class="topic-pane" data-topic-pane="next">
+        <div class="category-head">
+          <div>
+            <h3>次回へ</h3>
+            <p>次回までの宿題、期限、担当を整理します。</p>
+          </div>
+          <button class="button button--compact add-topic-button" data-add-topic="next" type="button">このカテゴリで追加</button>
+        </div>
+        <div class="candidate-list" id="nextCandidates"></div>
+        <label class="full-field">
+          <span>次回への追加メモ</span>
+          <textarea id="nextManual" rows="3" placeholder="次回までに確認したいこと、担当、期限など"></textarea>
+        </label>
+      </div>
+    </section>
+
+    <section class="panel output-panel step-panel" data-step-panel="output" aria-labelledby="outputTitle">
+      <div class="panel-head">
+        <div>
+          <p class="section-kicker">03</p>
+          <h2 id="outputTitle">出力</h2>
         </div>
         <div class="output-actions">
-          <button class="button button--subtle" id="copyClientSummary" type="button">要約版コピー</button>
-          <button class="button button--subtle" id="copyDetailedSummary" type="button">詳細版コピー</button>
+          <button class="button button--subtle" id="copyClientSummary" type="button">共有用コピー</button>
+          <button class="button button--subtle" id="copyInternalMemo" type="button">内部用コピー</button>
           <button class="button button--primary" id="generateSummary" type="button">再生成</button>
         </div>
       </div>
@@ -268,82 +305,236 @@
       <div class="summary-grid">
         <article class="summary-box client-summary">
           <div class="summary-box-head">
-            <h3>クライアント共有用アジェンダ</h3>
+            <h3>顧客共有用アジェンダ</h3>
             <button class="button button--subtle" id="printClientAgenda" type="button">印刷</button>
           </div>
           <div id="clientAgendaView" class="agenda-document"></div>
           <pre id="clientSummaryText" class="copy-source"></pre>
         </article>
-        <article class="summary-box detailed-summary">
+        <article class="summary-box internal-summary">
           <div class="summary-box-head">
-            <h3>カンニングペーパー</h3>
-            <button class="button button--subtle" id="printDetailedSummary" type="button">印刷</button>
+            <h3>内部用メモ</h3>
+            <button class="button button--subtle" id="printInternalMemo" type="button">印刷</button>
           </div>
-          <div id="detailedSummaryView" class="cheat-sheet"></div>
-          <pre id="detailedSummaryText" class="copy-source"></pre>
+          <div id="internalMemoView" class="memo-document"></div>
+          <pre id="internalMemoText" class="copy-source"></pre>
         </article>
       </div>
-    </section>
 
-    <section class="panel report-panel step-panel" data-step-panel="print" aria-labelledby="reportTitle">
-      <div class="panel-head">
-        <div>
-          <p class="section-kicker">05</p>
-          <h2 id="reportTitle">月次レポート</h2>
+      <section class="stock-summary-panel" aria-labelledby="stockSummaryTitle">
+        <div class="summary-box-head">
+          <div>
+            <h3 id="stockSummaryTitle">Stock貼付用要約</h3>
+            <p>Stockノート本文へ貼り付ける面談記録です。顧客共有用アジェンダとは別に扱い、内部メモも内部メモ欄として区分します。</p>
+          </div>
+          <div class="output-actions">
+            <button class="button button--primary" id="generateStockSummary" type="button">Stock貼付用要約を生成</button>
+            <button class="button button--subtle" id="copyStockSummary" type="button">要約をコピー</button>
+          </div>
         </div>
-        <div class="output-actions">
-          <button class="button button--subtle" id="copyMonthlyReport" type="button">レポートコピー</button>
-          <button class="button button--primary" id="printMonthlyReport" type="button">レポート印刷</button>
+        <div id="stockSummaryMessage" class="json-result json-result--compact">
+          <p class="empty-note">面談後、Stockノート本文へ貼り付ける要約を生成できます。</p>
         </div>
-      </div>
-      <div id="monthlyReportView" class="monthly-report">
-        <p class="empty-note">CSVを取り込むと、月次レポートを自動作成します。</p>
-      </div>
-      <pre id="monthlyReportText" class="copy-source"></pre>
+        <label class="full-field">
+          <span>Stockノート本文へ貼り付けるプレーンテキスト</span>
+          <textarea id="stockSummaryText" class="stock-summary-textarea" rows="18" placeholder="生成結果がここに表示されます。コピーに失敗した場合も、この欄から手動コピーできます。"></textarea>
+        </label>
+      </section>
     </section>
 
     <section class="panel result-panel step-panel" data-step-panel="result" aria-labelledby="resultTitle">
       <div class="panel-head">
         <div>
-          <p class="section-kicker">06</p>
-          <h2 id="resultTitle">面談結果入力・保存</h2>
+          <p class="section-kicker">04</p>
+          <h2 id="resultTitle">面談結果</h2>
         </div>
         <div class="output-actions">
-          <button class="button button--subtle" id="exportJsonResult" type="button">JSON保存</button>
-          <button class="button button--primary" id="saveRecord" type="button">面談結果を保存</button>
+          <button class="button button--primary" id="exportJsonResult" type="button">JSON出力</button>
         </div>
+      </div>
+      <div id="exportJsonMessage" class="json-result json-result--compact">
+        <p class="empty-note">顧客コードと対象月を入力すると、今回JSONを出力できます。</p>
       </div>
 
       <div class="result-grid">
         <label>
           <span>面談で決まったこと</span>
-          <textarea id="decisions" rows="4" placeholder="合意事項、提案内容、次回の方向性"></textarea>
+          <textarea id="decisions" rows="4" placeholder="決定事項、合意事項、次回の方向性"></textarea>
         </label>
         <label>
-          <span>宿題・依頼事項</span>
-          <textarea id="homework" rows="4" placeholder="誰が、いつまでに、何を確認するか"></textarea>
+          <span>顧客側の宿題</span>
+          <textarea id="clientHomework" rows="4" placeholder="誰が、いつまでに、何を確認するか"></textarea>
         </label>
         <label>
-          <span>振り返り・次回注意点</span>
-          <textarea id="reflection" rows="4" placeholder="話が広がった点、次回深掘りする点、所内共有事項"></textarea>
+          <span>事務所側の宿題</span>
+          <textarea id="officeHomework" rows="4" placeholder="担当者、期限、対応内容"></textarea>
         </label>
       </div>
 
-      <div class="saved-records">
-        <h3>保存履歴</h3>
-        <div id="recordList" class="record-list"></div>
-      </div>
+      <section class="internal-note-panel" aria-labelledby="internalNoteTitle">
+        <div class="category-head">
+          <div>
+            <h3 id="internalNoteTitle">内部メモ</h3>
+            <p>内部用出力にだけ表示します。顧客共有用出力には表示しません。</p>
+          </div>
+          <button class="button button--primary" id="addInternalNote" type="button">内部メモを追加</button>
+        </div>
+        <div class="field-grid">
+          <label>
+            <span>メモ見出し</span>
+            <input id="newInternalNoteTitle" type="text" autocomplete="off" placeholder="例：次回前の確認">
+          </label>
+          <label>
+            <span>メモ内容</span>
+            <textarea id="newInternalNoteDetail" rows="3" placeholder="顧客共有用には出さない所内メモ"></textarea>
+          </label>
+        </div>
+        <div id="internalNotesList" class="internal-note-list">
+          <p class="empty-note">内部メモはまだありません。顧客共有用出力には表示されません。</p>
+        </div>
+      </section>
+
+      <section class="stock-save-panel" aria-labelledby="stockSaveTitle">
+        <div class="category-head">
+          <div>
+            <h3 id="stockSaveTitle">面談後チェックリスト</h3>
+            <p>Stock API連携は行いません。職員がStockノート本文へ要約を貼り付け、今回JSONを添付するための確認欄です。</p>
+          </div>
+        </div>
+        <div class="save-flow-grid">
+          <article>
+            <h4>Stock保存フロー</h4>
+            <ol class="save-flow-list">
+              <li>面談結果を入力</li>
+              <li>未完了事項の状態を更新</li>
+              <li>Stock貼付用要約を生成</li>
+              <li>今回JSONを出力</li>
+              <li>Stock本文へ要約を貼る</li>
+              <li>StockへJSONを添付</li>
+              <li>必要な宿題をStockタスク化</li>
+            </ol>
+          </article>
+          <article>
+            <div id="stockSaveChecklistMessage" class="json-result json-result--compact">
+              <p class="empty-note">未完了の手順があります。</p>
+            </div>
+            <p id="dueTaskWarning" class="due-task-warning" hidden>期限付きの未完了項目があります。Stockタスク登録の確認を忘れないでください。</p>
+            <ol class="stock-checklist">
+              <li class="stock-checklist-item">
+                <label class="checkbox-field">
+                  <input data-checklist-id="meeting_result" type="checkbox">
+                  <span>今回の面談結果を入力した</span>
+                </label>
+              </li>
+              <li class="stock-checklist-item">
+                <label class="checkbox-field">
+                  <input data-checklist-id="status_updated" type="checkbox">
+                  <span>未完了事項の状態を更新した</span>
+                </label>
+              </li>
+              <li class="stock-checklist-item">
+                <label class="checkbox-field">
+                  <input data-checklist-id="carry_forward_checked" type="checkbox">
+                  <span>次回繰越事項を確認した</span>
+                </label>
+              </li>
+              <li class="stock-checklist-item">
+                <label class="checkbox-field">
+                  <input data-checklist-id="json_exported" type="checkbox">
+                  <span>今回JSONを出力した</span>
+                </label>
+              </li>
+              <li class="stock-checklist-item">
+                <label class="checkbox-field">
+                  <input data-checklist-id="summary_pasted" type="checkbox">
+                  <span>Stock貼付用要約をStockノート本文へ貼り付けた</span>
+                </label>
+              </li>
+              <li class="stock-checklist-item">
+                <label class="checkbox-field">
+                  <input data-checklist-id="json_attached" type="checkbox">
+                  <span>今回JSONをStockノートへ添付した</span>
+                </label>
+              </li>
+              <li class="stock-checklist-item">
+                <label class="checkbox-field">
+                  <input data-checklist-id="stock_tasks_registered" type="checkbox">
+                  <span>期限付き宿題をStockタスクに登録した</span>
+                </label>
+              </li>
+            </ol>
+          </article>
+        </div>
+      </section>
     </section>
   </main>
 
   <template id="candidateTemplate">
     <article class="candidate-card">
       <label class="candidate-check">
-        <input type="checkbox">
-        <span class="candidate-title"></span>
+        <input data-item-field="selected" type="checkbox">
+        <span>今回扱う</span>
       </label>
       <p class="candidate-source"></p>
-      <textarea rows="2" placeholder="面談で確認する内容、数字、相手への聞き方"></textarea>
+      <div class="item-card-grid">
+        <label class="full-field">
+          <span>タイトル</span>
+          <input data-item-field="title" type="text" autocomplete="off">
+        </label>
+        <label class="full-field">
+          <span>詳細</span>
+          <textarea data-item-field="detail" rows="2" placeholder="面談で確認する内容"></textarea>
+        </label>
+        <label>
+          <span>担当</span>
+          <select data-item-field="owner">
+            <option value="">未設定</option>
+            <option value="client">顧客</option>
+            <option value="office">事務所</option>
+            <option value="staff">担当者</option>
+          </select>
+        </label>
+        <label>
+          <span>期限</span>
+          <input data-item-field="dueDate" type="date">
+        </label>
+        <label>
+          <span>状態</span>
+          <select data-item-field="status">
+            <option value="open">未着手</option>
+            <option value="in_progress">対応中</option>
+            <option value="done">完了</option>
+            <option value="on_hold">保留</option>
+            <option value="withdrawn">取り下げ</option>
+          </select>
+        </label>
+        <label>
+          <span>公開範囲</span>
+          <select data-item-field="visibility">
+            <option value="client">顧客共有</option>
+            <option value="internal">内部のみ</option>
+          </select>
+        </label>
+        <label class="checkbox-field">
+          <input data-item-field="carryForward" type="checkbox">
+          <span>次回へ繰り越す</span>
+        </label>
+      </div>
+      <button class="button button--compact candidate-delete-button" type="button" hidden>削除</button>
+    </article>
+  </template>
+
+  <template id="internalNoteTemplate">
+    <article class="internal-note-card">
+      <label>
+        <span>メモ見出し</span>
+        <input data-note-field="title" type="text" autocomplete="off">
+      </label>
+      <label>
+        <span>メモ内容</span>
+        <textarea data-note-field="detail" rows="3"></textarea>
+      </label>
+      <button class="button button--compact internal-note-delete-button" type="button">削除</button>
     </article>
   </template>
 

@@ -1,0 +1,64 @@
+{
+  "schemaVersion": "1.0",
+  "clientCode": "TEST001",
+  "clientName": "",
+  "targetMonth": "2026-05",
+  "createdAt": "2026-06-06T00:00:00+09:00",
+  "createdBy": "サンプル担当者",
+  "meeting": {
+    "meetingDate": "2026-06-06",
+    "staffName": "サンプル担当者",
+    "summary": "繰越対象外の状態を確認するサンプル。"
+  },
+  "items": [
+    {
+      "id": "completed-item-001",
+      "title": "完了済み事項",
+      "detail": "完了済みのため自動繰越しない。",
+      "owner": "client",
+      "dueDate": "2026-06-10",
+      "status": "done",
+      "carryForward": true,
+      "visibility": "client",
+      "source": "previous"
+    },
+    {
+      "id": "completed-item-002",
+      "title": "取り下げ済み事項",
+      "detail": "取り下げ済みのため自動繰越しない。",
+      "owner": "office",
+      "dueDate": "2026-06-12",
+      "status": "withdrawn",
+      "carryForward": true,
+      "visibility": "client",
+      "source": "previous"
+    },
+    {
+      "id": "completed-item-003",
+      "title": "繰越しない単月事項",
+      "detail": "carryForward=false のため自動繰越しない。",
+      "owner": "client",
+      "dueDate": "2026-06-15",
+      "status": "open",
+      "carryForward": false,
+      "visibility": "client",
+      "source": "previous"
+    },
+    {
+      "id": "completed-item-004",
+      "title": "保留中事項",
+      "detail": "保留中かつ carryForward=true のため自動繰越する。",
+      "owner": "office",
+      "dueDate": "2026-07-05",
+      "status": "on_hold",
+      "carryForward": true,
+      "visibility": "client",
+      "source": "previous"
+    }
+  ],
+  "internalNotes": [],
+  "exportInfo": {
+    "exportedFileName": "junkai_TEST001_2026-05_v001.json",
+    "exportedAt": "2026-06-06T00:00:00+09:00"
+  }
+}

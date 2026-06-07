@@ -1,0 +1,94 @@
+{
+  "schemaVersion": "1.0",
+  "clientCode": "TEST001",
+  "clientName": "",
+  "targetMonth": "2026-05",
+  "createdAt": "2026-06-06T00:00:00+09:00",
+  "createdBy": "サンプル担当者",
+  "meeting": {
+    "meetingDate": "2026-06-06",
+    "staffName": "サンプル担当者",
+    "summary": "前月からの確認事項を整理した。"
+  },
+  "items": [
+    {
+      "id": "item-001",
+      "title": "売掛金回収予定の確認",
+      "detail": "主要取引先への請求分について入金予定を確認する。",
+      "owner": "client",
+      "dueDate": "2026-06-30",
+      "status": "open",
+      "carryForward": true,
+      "visibility": "client",
+      "source": "previous"
+    },
+    {
+      "id": "item-002",
+      "title": "次回面談日程の候補確認",
+      "detail": "翌月の面談候補日を2つ以上確認する。",
+      "owner": "office",
+      "dueDate": "2026-06-20",
+      "status": "in_progress",
+      "carryForward": true,
+      "visibility": "internal",
+      "source": "previous",
+      "preservedExtraExample": "追加フィールド保持確認用"
+    },
+    {
+      "id": "item-003",
+      "title": "完了済み確認事項",
+      "detail": "完了済みのため、次月アジェンダには自動表示しない。",
+      "owner": "client",
+      "dueDate": "2026-06-10",
+      "status": "done",
+      "carryForward": true,
+      "visibility": "client",
+      "source": "previous"
+    },
+    {
+      "id": "item-004",
+      "title": "取り下げ済み確認事項",
+      "detail": "取り下げ済みのため、次月アジェンダには自動表示しない。",
+      "owner": "office",
+      "dueDate": "2026-06-12",
+      "status": "withdrawn",
+      "carryForward": true,
+      "visibility": "client",
+      "source": "previous"
+    },
+    {
+      "id": "item-005",
+      "title": "単月確認事項",
+      "detail": "carryForward=false のため、次月アジェンダには自動表示しない。",
+      "owner": "client",
+      "dueDate": "2026-06-15",
+      "status": "open",
+      "carryForward": false,
+      "visibility": "client",
+      "source": "previous"
+    },
+    {
+      "id": "item-006",
+      "title": "保留中の確認事項",
+      "detail": "保留中だが carryForward=true のため、次月アジェンダに自動表示する。",
+      "owner": "office",
+      "dueDate": "2026-07-05",
+      "status": "on_hold",
+      "carryForward": true,
+      "visibility": "client",
+      "source": "previous"
+    }
+  ],
+  "internalNotes": [
+    {
+      "id": "note-001",
+      "title": "内部確認メモ",
+      "detail": "次回面談前に担当者内で確認する。",
+      "visibility": "internal"
+    }
+  ],
+  "exportInfo": {
+    "exportedFileName": "junkai_TEST001_2026-05_v001.json",
+    "exportedAt": "2026-06-06T00:00:00+09:00"
+  }
+}

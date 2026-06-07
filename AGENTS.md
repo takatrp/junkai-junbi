@@ -11,6 +11,7 @@ It must support:
 - current meeting JSON export
 - Stock paste-ready summary generation
 - separation between client-facing output and internal notes
+- post-meeting Stock save checklist
 
 ## Non-goals
 
@@ -21,7 +22,7 @@ Do not implement:
 - tax judgment automation
 - Stock API integration
 - Stock login automation
-- scraping
+- Stock screen scraping
 - backend server
 - cloud database
 - external data transmission
@@ -59,8 +60,10 @@ Imported JSON must validate:
 - schemaVersion exists
 - clientCode exists
 - targetMonth exists
+- items is an array
+- internalNotes is an array
 - clientCode matches the entered client code
-- targetMonth is the previous month of the current targetMonth, unless an exception reason is entered
+- targetMonth is the previous month of the current targetMonth, unless an override reason is entered
 - carry-forward items are well-formed
 
 ## Carry-forward rules
@@ -70,11 +73,14 @@ Carry forward only items where:
 - status is not done
 - status is not withdrawn
 
+Do not automatically remove completed or withdrawn items from the exported JSON, but they must not reappear as carry-forward items next month.
+
 ## Visibility rules
 
 - visibility=client may appear in client-facing output
 - visibility=internal must never appear in client-facing output
 - internal output may include both client and internal items
+- internalNotes must not appear in client-facing output
 
 ## Review priorities
 
@@ -82,8 +88,11 @@ Prioritize serious issues:
 - confidential data leakage
 - accidental network transmission
 - bypassing required previous JSON import
+- bypassing required exception reason entry
 - incorrect carry-forward behavior
 - internal notes appearing in client-facing output
 - fragile month/date logic
 - confusing Stock with this tool
 - confusing TKC with this tool
+
+Use sub-agents when they are helpful for focused review or verification.

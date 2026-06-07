@@ -1,0 +1,31 @@
+{
+  "schemaVersion": "1.0",
+  "clientCode": "TESTJAN",
+  "clientName": "",
+  "targetMonth": "2025-12",
+  "createdAt": "2026-01-08T00:00:00+09:00",
+  "createdBy": "サンプル担当者",
+  "meeting": {
+    "meetingDate": "2026-01-08",
+    "staffName": "サンプル担当者",
+    "summary": "1月開始時の前月判定確認用サンプル。"
+  },
+  "items": [
+    {
+      "id": "jan-item-001",
+      "title": "年始面談の確認事項",
+      "detail": "1月対象月で前月が前年12月になることを確認する。",
+      "owner": "office",
+      "dueDate": "2026-01-31",
+      "status": "open",
+      "carryForward": true,
+      "visibility": "client",
+      "source": "previous"
+    }
+  ],
+  "internalNotes": [],
+  "exportInfo": {
+    "exportedFileName": "junkai_TESTJAN_2025-12_v001.json",
+    "exportedAt": "2026-01-08T00:00:00+09:00"
+  }
+}

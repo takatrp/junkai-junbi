@@ -1,0 +1,22 @@
+{
+  "name": "junkai-junbi",
+  "version": "0.2.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "build:pages": "node scripts/build-pages.mjs",
+    "start": "next start",
+    "test": "node --test tests/*.test.js"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.50.0",
+    "next": "^15.3.4",
+    "react": "^19.1.0",
+    "react-dom": "^19.1.0"
+  },
+  "devDependencies": {},
+  "overrides": {
+    "postcss": "^8.5.10"
+  }
+}

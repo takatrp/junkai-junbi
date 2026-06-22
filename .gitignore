@@ -1,0 +1,9 @@
+.env
+.env*.local
+.next
+.next-build
+out/
+.vercel
+node_modules
+npm-debug.log*
+output/

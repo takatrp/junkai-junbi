@@ -19,5 +19,5 @@ if (result.status !== 0) {
   process.exit(result.status ?? 1);
 }
 
-mkdirSync("out", { recursive: true });
-writeFileSync(join("out", ".nojekyll"), "");
+mkdirSync("pages-dist", { recursive: true });
+writeFileSync(join("pages-dist", ".nojekyll"), "");

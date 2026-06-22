@@ -54,6 +54,23 @@ const emptyNewItem = {
   visibility: "client"
 };
 
+function getAuthRedirectUrl() {
+  const fallbackUrl = "https://takatrp.github.io/junkai-junbi/";
+  if (typeof window === "undefined") return fallbackUrl;
+
+  const url = new URL(window.location.href);
+  url.search = "";
+  url.hash = "";
+
+  if (url.hostname === "takatrp.github.io") {
+    url.pathname = "/junkai-junbi/";
+  } else if (!url.pathname) {
+    url.pathname = "/";
+  }
+
+  return url.toString();
+}
+
 export default function Page() {
   const configured = hasSupabaseConfig();
   const [session, setSession] = useState(null);
@@ -131,7 +148,7 @@ export default function Page() {
     setLoading(true);
     const { error } = await supabase.auth.signInWithOtp({
       email,
-      options: { emailRedirectTo: window.location.origin }
+      options: { emailRedirectTo: getAuthRedirectUrl() }
     });
     setLoading(false);
     setMessage(error ? error.message : "確認メールを送信しました。メール内のリンクからログインしてください。");

@@ -6,7 +6,7 @@ const isGithubPages = process.env.GITHUB_PAGES === "true";
 
 const nextConfig = {
   reactStrictMode: true,
-  distDir: isGithubPages ? "out" : ".next-build",
+  distDir: isGithubPages ? "pages-dist" : ".next-build",
   outputFileTracingRoot: projectRoot,
   ...(isGithubPages
     ? {

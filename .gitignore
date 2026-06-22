@@ -3,6 +3,7 @@
 .next
 .next-build
 out/
+pages-dist/
 .vercel
 node_modules
 npm-debug.log*
